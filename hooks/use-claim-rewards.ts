@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useKeplr } from './use-keplr';
 import { useToast } from "@/components/ui/use-toast";
+import { claimChainRewards } from '@/lib/api/rewards';
 
 export function useClaimRewards(chainName: string = 'osmosis') {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,43 +28,28 @@ export function useClaimRewards(chainName: string = 'osmosis') {
         throw new Error("Failed to get signing client");
       }
 
-      // Create claim messages for each validator
-      const messages = validatorAddresses.map(validatorAddress => ({
-        typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
-        value: {
-          delegatorAddress: address,
-          validatorAddress,
-        },
-      }));
-
-      // Execute transaction
-      const tx = await client.signAndBroadcast(
+      await claimChainRewards({
+        chainName,
         address,
-        messages,
-        {
-          amount: [{ amount: "5000", denom: chainName === 'osmosis' ? "uosmo" : "uatom" }],
-          gas: "200000",
-        }
-      );
-
-      if (tx.code !== 0) {
-        throw new Error(tx.rawLog || 'Failed to claim rewards');
-      }
+        validatorAddresses,
+        client
+      });
 
       toast({
         title: "Success",
         description: "Successfully claimed rewards"
       });
 
-      // Refresh the page to update balances
-      window.location.reload();
+      // Wait briefly before reloading to allow state updates
+      setTimeout(() => window.location.reload(), 1000);
       
       return true;
     } catch (err) {
-      console.error('Error claiming rewards:', err);
+      const message = err instanceof Error ? err.message : "Failed to claim rewards";
+      console.error('Error claiming rewards:', message);
       toast({
         title: "Error",
-        description: err instanceof Error ? err.message : "Failed to claim rewards",
+        description: message,
         variant: "destructive"
       });
       return false;
