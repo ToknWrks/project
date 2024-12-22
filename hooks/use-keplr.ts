@@ -2,11 +2,10 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { chains } from 'chain-registry';
-import { bech32 } from 'bech32';
 import { logError } from './use-error-handling';
-import { useFetchWithRetry } from './use-fetch-with-retry';
-import { SUPPORTED_CHAINS } from '@/lib/constants/chains';
 import { fetchChainBalance, fetchChainDelegations, fetchChainRewards } from '@/lib/api/chain';
+import { SUPPORTED_CHAINS } from '@/lib/constants/chains';
+import { SigningStargateClient } from "@cosmjs/stargate";
 
 interface KeplrState {
   address: string;
@@ -118,6 +117,7 @@ export function useKeplr(chainName: string = 'osmosis') {
     });
   }, []);
 
+  // Handle Keplr account changes
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -133,6 +133,7 @@ export function useKeplr(chainName: string = 'osmosis') {
     };
   }, [state.status, connect]);
 
+  // Auto-connect if Keplr is available
   useEffect(() => {
     const autoConnect = async () => {
       if (typeof window === "undefined" || !window.keplr) return;
@@ -154,6 +155,12 @@ export function useKeplr(chainName: string = 'osmosis') {
     ...state,
     connect,
     disconnect,
+    getSigningClient: async () => {
+      if (!window.keplr) throw new Error("Keplr not installed");
+      await window.keplr.enable(chain.chainId);
+      const offlineSigner = window.keplr.getOfflineSigner(chain.chainId);
+      return SigningStargateClient.connectWithSigner(chain.rpc, offlineSigner);
+    },
     chainId: chain.chainId
   };
 }
