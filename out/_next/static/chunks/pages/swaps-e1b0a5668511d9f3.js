@@ -1,0 +1,1 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[626],{5364:function(n,u,t){(window.__NEXT_P=window.__NEXT_P||[]).push(["/swaps",function(){return t(7395)}])},7395:function(n,u,t){"use strict";function _(){return null}t.r(u),t.d(u,{default:function(){return _}})}},function(n){n.O(0,[888,774,179],function(){return n(n.s=5364)}),_N_E=n.O()}]);
