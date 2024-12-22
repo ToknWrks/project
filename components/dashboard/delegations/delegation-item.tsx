@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useClaimRewards } from "@/hooks/use-claim-rewards";
+import { useToast } from "@/components/ui/use-toast";
 
 interface DelegationItemProps {
   chainName: string;
@@ -16,15 +17,40 @@ export function DelegationItem({ chainName, delegation, onClaimSuccess }: Delega
   const validatorName = delegation.validator?.name || "Unknown Validator";
   const validatorAddress = delegation.delegation.validator_address;
   const { claimRewards, isLoading } = useClaimRewards(chainName);
+  const { toast } = useToast();
 
+  // Build explorer URL based on chain
   const explorerUrl = chainName === 'osmosis' 
     ? `https://www.mintscan.io/osmosis/validators/${validatorAddress}`
     : `https://www.mintscan.io/${chainName}/validators/${validatorAddress}`;
 
+  // Get token symbol based on chain
+  const tokenSymbol = chainName === 'osmosis' ? 'OSMO' : chainName.toUpperCase();
+
+  // Format commission as percentage if available
+  const commission = delegation.validator?.commission 
+    ? (Number(delegation.validator.commission) * 100).toFixed(2)
+    : null;
+
   const handleClaim = async () => {
-    const success = await claimRewards([validatorAddress]);
-    if (success && onClaimSuccess) {
-      onClaimSuccess();
+    try {
+      const success = await claimRewards([validatorAddress]);
+      if (success) {
+        toast({
+          title: "Success",
+          description: `Successfully claimed rewards from ${validatorName}`
+        });
+        if (onClaimSuccess) {
+          onClaimSuccess();
+        }
+      }
+    } catch (err) {
+      console.error('Failed to claim rewards:', err);
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to claim rewards",
+        variant: "destructive"
+      });
     }
   };
 
@@ -43,11 +69,11 @@ export function DelegationItem({ chainName, delegation, onClaimSuccess }: Delega
           </Link>
         </div>
         <Badge variant="outline" className="w-fit">
-          {amount} {chainName === 'osmosis' ? 'OSMO' : chainName.toUpperCase()}
+          {amount} {tokenSymbol}
         </Badge>
-        {delegation.validator?.commission && (
+        {commission && (
           <span className="text-xs text-muted-foreground">
-            Commission: {(Number(delegation.validator.commission) * 100).toFixed(2)}%
+            Commission: {commission}%
           </span>
         )}
       </div>
