@@ -5,6 +5,7 @@ import { ExternalLink, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useClaimRewards } from "@/hooks/use-claim-rewards";
 import { useToast } from "@/components/ui/use-toast";
+import { DelegationActions } from "./delegation-actions";
 
 interface DelegationItemProps {
   chainName: string;
@@ -78,21 +79,30 @@ export function DelegationItem({ chainName, delegation, onClaimSuccess }: Delega
         )}
       </div>
 
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleClaim}
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="h-3 w-3 animate-spin" />
-            <span className="ml-1">Claiming...</span>
-          </>
-        ) : (
-          'Claim'
-        )}
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleClaim}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="h-3 w-3 animate-spin" />
+              <span className="ml-1">Claiming...</span>
+            </>
+          ) : (
+            'Claim'
+          )}
+        </Button>
+
+        <DelegationActions
+          chainName={chainName}
+          validatorAddress={validatorAddress}
+          validatorName={validatorName}
+          onSuccess={onClaimSuccess}
+        />
+      </div>
     </div>
   );
 }
