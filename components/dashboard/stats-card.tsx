@@ -123,17 +123,18 @@ export function StatsCard({
             <div className="text-sm text-muted-foreground">{usdValue}</div>
           </div>
         );
-      case 'unclaimed':
+      case 'unclaimed': {
         const estimatedTax = calculateTaxObligation(usdValue);
         return (
           <div className="space-y-1">
             <div>{unclaimedRewards} {tokenSymbol}</div>
             <div className="text-sm text-muted-foreground">{usdValue}</div>
             <div className="text-xs text-muted-foreground mt-1">
-              {description}: ${estimatedTax.toFixed(2)}
+              Estimated Tax: ${estimatedTax.toFixed(2)}
             </div>
           </div>
         );
+      }
       default:
         return "--";
     }
