@@ -1,11 +1,10 @@
-"use client";
-
-import { useSkipHistory, type ClaimEvent } from "@/hooks/use-skip-history";
+import { ClaimEvent } from "@/hooks/use-claims-history";
 import { ClaimEvent as ClaimEventComponent } from "./claim-event";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useClaimsHistory } from "@/hooks/use-claims-history";
 
 interface ClaimsListProps {
   chainName?: string;
@@ -13,13 +12,18 @@ interface ClaimsListProps {
 }
 
 export function ClaimsList({ chainName = 'osmosis', address }: ClaimsListProps) {
-  const { claims, isLoading, error, fetchClaimHistory } = useSkipHistory();
+  const { fetchClaimsHistory, isLoading, error } = useClaimsHistory(chainName);
+  const [claims, setClaims] = useState<ClaimEvent[]>([]);
 
   useEffect(() => {
-    if (address) {
-      fetchClaimHistory(address, chainName);
+    async function loadClaims() {
+      if (!address) return;
+      const history = await fetchClaimsHistory(address);
+      setClaims(history);
     }
-  }, [address, chainName, fetchClaimHistory]);
+
+    loadClaims();
+  }, [address, chainName, fetchClaimsHistory]);
 
   if (isLoading) {
     return (
