@@ -2,7 +2,7 @@ export const CHAIN_TO_COINGECKO_ID: { [key: string]: string } = {
   'osmosis': 'osmosis',
   'cosmoshub': 'cosmos',
   'celestia': 'celestia',
-  'akash': 'akash-network',
+  'akashnet': 'akash-network', // Add Akash mapping
   'regen': 'regen',
   'juno': 'juno-network',
   'dydx': 'dydx',
