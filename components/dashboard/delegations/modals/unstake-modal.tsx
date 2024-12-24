@@ -7,6 +7,7 @@ import { InfoIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useUnstake } from "@/hooks/staking/use-unstake";
 import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
+import { formatNumber } from "@/lib/utils";
 
 interface UnstakeModalProps {
   open: boolean;
@@ -14,6 +15,7 @@ interface UnstakeModalProps {
   chainName: string;
   validatorAddress: string;
   validatorName: string;
+  delegatedAmount: string;
   onSuccess?: () => void;
 }
 
@@ -23,6 +25,7 @@ export function UnstakeModal({
   chainName,
   validatorAddress,
   validatorName,
+  delegatedAmount,
   onSuccess
 }: UnstakeModalProps) {
   const [amount, setAmount] = useState("");
@@ -41,6 +44,8 @@ export function UnstakeModal({
     }
   };
 
+  const availableToUnstake = formatNumber(delegatedAmount, 6);
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
@@ -50,16 +55,30 @@ export function UnstakeModal({
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label>Amount to Unstake</Label>
+            <div className="flex items-center justify-between">
+              <Label>Amount to Unstake</Label>
+              <span className="text-sm text-muted-foreground">
+                Available: {availableToUnstake} {chain.symbol}
+              </span>
+            </div>
             <Input
               type="number"
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
-            <p className="text-sm text-muted-foreground">
-              From validator: {validatorName}
-            </p>
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">
+                From validator: {validatorName}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAmount(availableToUnstake)}
+              >
+                Max
+              </Button>
+            </div>
           </div>
 
           <Alert>
@@ -75,7 +94,10 @@ export function UnstakeModal({
             </Alert>
           )}
 
-          <Button onClick={handleUnstake} disabled={!amount || isLoading}>
+          <Button 
+            onClick={handleUnstake} 
+            disabled={!amount || isLoading || Number(amount) > Number(delegatedAmount)}
+          >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
