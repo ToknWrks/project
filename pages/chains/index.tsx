@@ -1,47 +1,48 @@
-"use client";
-
 import { Header } from "@/components/dashboard/header";
 import { useKeplr } from "@/hooks/use-keplr";
 import { useMultiChainBalances } from "@/hooks/use-multi-chain-balances";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoIcon, Loader2 } from "lucide-react";
-import { useChainSettings } from "@/hooks/use-chain-settings";
 import { AssetsChart } from "@/components/dashboard/assets-chart";
-import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
-import Image from "next/image";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { InfoIcon } from "lucide-react";
+import { useChainSettings } from "@/hooks/use-chain-settings";
 import Link from "next/link";
 import { useMemo } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
+import { formatNumber } from "@/lib/utils";
 
 export default function ChainsPage() {
   const { address, status } = useKeplr();
   const { balances, isLoading, loadingChains } = useMultiChainBalances(
     status === 'Connected' ? address : undefined
   );
-  const { enabledChains } = useChainSettings();
+  const { chains, enabledChains } = useChainSettings();
 
-  // Filter chains based on enabled state and balances
+  // Get enabled chains with balances
   const chainsWithBalances = useMemo(() => {
-    return Object.entries(SUPPORTED_CHAINS)
-      .filter(([chainName]) => enabledChains.has(chainName))
-      .map(([chainName, chain]) => ({
-        chainName,
-        chain,
-        balance: balances[chainName] || {
-          available: "0",
-          staked: "0",
-          rewards: "0",
-          usdValues: {
+    return chains
+      .filter(chain => enabledChains.has(chain.chainId.split('-')[0]))
+      .map(chain => {
+        const chainKey = chain.chainId.split('-')[0];
+        return {
+          chainName: chainKey,
+          chain,
+          balance: balances[chainKey] || {
             available: "0",
             staked: "0",
             rewards: "0",
-            total: "0"
+            usdValues: {
+              available: "0",
+              staked: "0",
+              rewards: "0",
+              total: "0"
+            }
           }
-        }
-      }))
+        };
+      })
       .sort((a, b) => Number(b.balance.usdValues.total) - Number(a.balance.usdValues.total));
-  }, [balances, enabledChains]);
+  }, [chains, balances, enabledChains]);
 
   // Calculate total value across all chains
   const totalValue = useMemo(() => {
@@ -50,7 +51,7 @@ export default function ChainsPage() {
     }, 0).toFixed(2);
   }, [chainsWithBalances]);
 
-  // Prepare data for the assets chart
+  // Prepare chart data
   const chartData = useMemo(() => {
     return chainsWithBalances
       .filter(({ balance }) => Number(balance.usdValues.total) > 0)
@@ -60,11 +61,6 @@ export default function ChainsPage() {
         symbol: chain.symbol
       }));
   }, [chainsWithBalances]);
-
-  const formatNumber = (value: string) => {
-    const num = Number(value);
-    return num.toFixed(6);
-  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -99,17 +95,17 @@ export default function ChainsPage() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {[1, 2, 3].map((i) => (
                   <Card key={i}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <Skeleton className="h-4 w-[100px]" />
-                      <Skeleton className="h-8 w-8 rounded-full" />
-                    </CardHeader>
-                    <CardContent>
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <Skeleton className="h-4 w-[100px]" />
+                        <Skeleton className="h-8 w-8 rounded-full" />
+                      </div>
                       <div className="space-y-2">
+                        <Skeleton className="h-4 w-[120px]" />
                         <Skeleton className="h-4 w-[100px]" />
                         <Skeleton className="h-4 w-[80px]" />
-                        <Skeleton className="h-4 w-[120px]" />
                       </div>
-                    </CardContent>
+                    </div>
                   </Card>
                 ))}
               </div>
@@ -133,7 +129,7 @@ export default function ChainsPage() {
                       <Card className="hover:bg-muted/50 transition-colors cursor-pointer relative">
                         {loadingChains.has(chainName) && (
                           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center">
-                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
                           </div>
                         )}
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
