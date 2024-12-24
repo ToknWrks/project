@@ -7,6 +7,8 @@ import { InfoIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useDelegate } from "@/hooks/staking/use-delegate";
 import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
+import { useKeplr } from "@/hooks/use-keplr";
+import { formatNumber } from "@/lib/utils";
 
 interface DelegateModalProps {
   open: boolean;
@@ -27,6 +29,7 @@ export function DelegateModal({
 }: DelegateModalProps) {
   const [amount, setAmount] = useState("");
   const { delegate, isLoading, error } = useDelegate(chainName);
+  const { balance } = useKeplr(chainName);
   const chain = SUPPORTED_CHAINS[chainName as keyof typeof SUPPORTED_CHAINS];
 
   const handleDelegate = async () => {
@@ -41,6 +44,8 @@ export function DelegateModal({
     }
   };
 
+  const availableBalance = formatNumber(balance, 6);
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
@@ -50,16 +55,30 @@ export function DelegateModal({
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label>Amount to Delegate</Label>
+            <div className="flex items-center justify-between">
+              <Label>Amount to Delegate</Label>
+              <span className="text-sm text-muted-foreground">
+                Available: {availableBalance} {chain.symbol}
+              </span>
+            </div>
             <Input
               type="number"
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
-            <p className="text-sm text-muted-foreground">
-              To validator: {validatorName}
-            </p>
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">
+                To validator: {validatorName}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAmount(availableBalance)}
+              >
+                Max
+              </Button>
+            </div>
           </div>
 
           <Alert>
@@ -75,7 +94,10 @@ export function DelegateModal({
             </Alert>
           )}
 
-          <Button onClick={handleDelegate} disabled={!amount || isLoading}>
+          <Button 
+            onClick={handleDelegate} 
+            disabled={!amount || isLoading || Number(amount) > Number(balance)}
+          >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
