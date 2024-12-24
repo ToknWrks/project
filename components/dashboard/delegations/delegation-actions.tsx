@@ -15,6 +15,7 @@ interface DelegationActionsProps {
   chainName: string;
   validatorAddress: string;
   validatorName: string;
+  delegatedAmount: string;
   onSuccess?: () => void;
 }
 
@@ -22,6 +23,7 @@ export function DelegationActions({
   chainName,
   validatorAddress,
   validatorName,
+  delegatedAmount,
   onSuccess 
 }: DelegationActionsProps) {
   const [showUnstakeModal, setShowUnstakeModal] = useState(false);
@@ -56,6 +58,7 @@ export function DelegationActions({
         chainName={chainName}
         validatorAddress={validatorAddress}
         validatorName={validatorName}
+        delegatedAmount={delegatedAmount}
         onSuccess={onSuccess}
       />
 
@@ -65,6 +68,7 @@ export function DelegationActions({
         chainName={chainName}
         sourceValidatorAddress={validatorAddress}
         sourceValidatorName={validatorName}
+        delegatedAmount={delegatedAmount}
         onSuccess={onSuccess}
       />
 
