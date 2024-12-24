@@ -1,7 +1,4 @@
-"use client";
-
 import { useState, useEffect } from 'react';
-import { useChainInfo } from './use-chain-info';
 import { useChainSettings } from './use-chain-settings';
 import { useChainCache } from './use-chain-cache';
 import { useTokenPrice } from './use-token-price';
@@ -23,7 +20,7 @@ interface ChainBalances {
   };
 }
 
-export function useMultiChainBalances(osmosisAddress?: string) {
+export function useMultiChainBalances(address?: string) {
   const [balances, setBalances] = useState<ChainBalances>({});
   const [isLoading, setIsLoading] = useState(true);
   const [loadingChains, setLoadingChains] = useState<Set<string>>(new Set());
@@ -34,7 +31,7 @@ export function useMultiChainBalances(osmosisAddress?: string) {
 
   useEffect(() => {
     const fetchBalances = async () => {
-      if (!osmosisAddress) {
+      if (!address) {
         setIsLoading(false);
         return;
       }
@@ -52,23 +49,26 @@ export function useMultiChainBalances(osmosisAddress?: string) {
       const loadingChainsSet = new Set<string>();
 
       try {
+        // Get list of enabled chains
         const enabledChainsList = Array.from(enabledChains)
           .filter(chainName => chainName in SUPPORTED_CHAINS);
 
+        // Fetch data for each chain in parallel
         await Promise.all(
           enabledChainsList.map(async (chainName) => {
             try {
               const chain = SUPPORTED_CHAINS[chainName as keyof typeof SUPPORTED_CHAINS];
               if (!chain) return;
 
+              // Track loading state
               loadingChainsSet.add(chainName);
               setLoadingChains(new Set(loadingChainsSet));
 
               // Fetch chain data in parallel
               const [available, delegationData, rewards] = await Promise.all([
-                fetchChainBalance(chain.rest, osmosisAddress, chain.denom, chain.decimals),
-                fetchChainDelegations(chain.rest, osmosisAddress, chain.decimals),
-                fetchChainRewards(chain.rest, osmosisAddress, chain.denom, chain.decimals)
+                fetchChainBalance(chain.rest, address, chain.denom, chain.decimals),
+                fetchChainDelegations(chain.rest, address, chain.decimals),
+                fetchChainRewards(chain.rest, address, chain.denom, chain.decimals)
               ]);
 
               // Get token price
@@ -82,6 +82,7 @@ export function useMultiChainBalances(osmosisAddress?: string) {
                 total: ((Number(available) + Number(delegationData.stakedBalance) + Number(rewards)) * price).toFixed(2)
               };
 
+              // Only add chains with non-zero balances
               if (Number(available) > 0 || Number(delegationData.stakedBalance) > 0 || Number(rewards) > 0) {
                 newBalances[chainName] = {
                   available,
@@ -111,7 +112,7 @@ export function useMultiChainBalances(osmosisAddress?: string) {
     };
 
     fetchBalances();
-  }, [osmosisAddress, enabledChains, getCachedBalances, setCachedBalances, fetchPrice]);
+  }, [address, enabledChains, getCachedBalances, setCachedBalances, fetchPrice]);
 
   return {
     balances,
