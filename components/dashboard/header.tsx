@@ -1,20 +1,21 @@
 "use client";
 
-import { Wallet, Menu, Settings } from "lucide-react";
+import { useState } from "react";
+import { Menu, Settings, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SettingsModal } from "./settings-modal";
 import { SwapModal } from "./swap-modal";
 import { WalletModal } from "./wallet-modal";
-import { useState } from "react";
 import { useKeplr } from "@/hooks/use-keplr";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import { NETWORKS } from "@/config/networks";
+import { NETWORKS } from '@/config/networks';
 import { ClaimAllButton } from "./claim-all-button";
 import { ThemeToggle } from "./theme-toggle";
+import { useChainSettings } from "@/hooks/use-chain-settings";
 
 interface HeaderProps {
   chainName?: string;
@@ -26,11 +27,12 @@ export function Header({ chainName = 'osmosis' }: HeaderProps) {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const { status, isLoading, address, disconnect, unclaimedRewards, connect } = useKeplr(chainName);
   const [isOpen, setIsOpen] = useState(false);
+  const { enabledChains } = useChainSettings();
 
-  const formatAddress = (addr: string) => {
-    if (!addr) return '';
-    return `${addr.slice(0, 8)}...${addr.slice(-4)}`;
-  };
+  // Filter networks based on enabled chains
+  const enabledNetworks = NETWORKS.filter(network => 
+    enabledChains.has(network.chainId.split('-')[0])
+  );
 
   const isWalletConnected = status === 'Connected';
   const isWalletConnecting = isLoading;
@@ -62,7 +64,7 @@ export function Header({ chainName = 'osmosis' }: HeaderProps) {
               <SheetTitle className="text-left">ToknWrks</SheetTitle>
             </SheetHeader>
             <div className="grid gap-4 py-4">
-              {NETWORKS.map((network) => (
+              {enabledNetworks.map((network) => (
                 <Link
                   key={network.href}
                   href={network.href}
@@ -140,7 +142,10 @@ export function Header({ chainName = 'osmosis' }: HeaderProps) {
               ) : (
                 <span className="flex items-center">
                   <Wallet className="mr-2 h-4 w-4" />
-                  {isWalletConnected && address ? formatAddress(address) : 'Connect Wallet'}
+                  {isWalletConnected && address ? 
+                    `${address.slice(0, 8)}...${address.slice(-4)}` : 
+                    'Connect Wallet'
+                  }
                 </span>
               )}
             </Button>
