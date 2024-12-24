@@ -1,3 +1,4 @@
+// Fallback endpoints for chains
 export const FALLBACK_ENDPOINTS = {
   'osmosis': {
     rest: 'https://rest.cosmos.directory/osmosis',
@@ -7,7 +8,7 @@ export const FALLBACK_ENDPOINTS = {
     rest: 'https://rest.cosmos.directory/cosmoshub',
     rpc: 'https://rpc.cosmos.directory/cosmoshub'
   },
-  'akash': {
+  'akashnet': {
     rest: 'https://rest.cosmos.directory/akash',
     rpc: 'https://rpc.cosmos.directory/akash'
   },
