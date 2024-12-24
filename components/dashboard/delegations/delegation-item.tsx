@@ -100,6 +100,7 @@ export function DelegationItem({ chainName, delegation, onClaimSuccess }: Delega
           chainName={chainName}
           validatorAddress={validatorAddress}
           validatorName={validatorName}
+          delegatedAmount={amount}
           onSuccess={onClaimSuccess}
         />
       </div>
