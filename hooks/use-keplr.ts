@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useCallback, useEffect } from 'react';
-import { chains } from 'chain-registry';
-import { logError } from './use-error-handling';
-import { fetchChainBalance, fetchChainDelegations, fetchChainRewards } from '@/lib/api/chain';
-import { SUPPORTED_CHAINS } from '@/lib/constants/chains';
 import { SigningStargateClient } from "@cosmjs/stargate";
+import { getChainConfig } from '@/lib/constants/chains';
+import { fetchChainBalance, fetchChainDelegations, fetchChainRewards } from '@/lib/api/chain';
+import { logError } from '@/lib/error-handling';
 
 interface KeplrState {
   address: string;
@@ -19,16 +18,16 @@ interface KeplrState {
 }
 
 export function useKeplr(chainName: string = 'osmosis') {
-  const chain = SUPPORTED_CHAINS[chainName as keyof typeof SUPPORTED_CHAINS];
+  const chain = getChainConfig(chainName);
   if (!chain) {
     throw new Error(`Chain configuration not found for ${chainName}`);
   }
 
   const [state, setState] = useState<KeplrState>({
     address: "",
-    balance: "0.00",
-    stakedBalance: "0.00",
-    unclaimedRewards: "0.00",
+    balance: "0",
+    stakedBalance: "0",
+    unclaimedRewards: "0",
     delegations: [],
     status: 'Disconnected',
     isLoading: false,
@@ -40,27 +39,27 @@ export function useKeplr(chainName: string = 'osmosis') {
       const balance = await fetchChainBalance(chain.rest, address, chain.denom, chain.decimals);
       setState(prev => ({ ...prev, balance }));
     } catch (err) {
-      logError(err, 'Fetching balance');
+      logError(err, `Failed to fetch ${chainName} balance`);
     }
-  }, [chain]);
+  }, [chain, chainName]);
 
   const fetchDelegations = useCallback(async (address: string) => {
     try {
       const { delegations, stakedBalance } = await fetchChainDelegations(chain.rest, address, chain.decimals);
       setState(prev => ({ ...prev, delegations, stakedBalance }));
     } catch (err) {
-      logError(err, 'Fetching delegations');
+      logError(err, `Failed to fetch ${chainName} delegations`);
     }
-  }, [chain]);
+  }, [chain, chainName]);
 
   const fetchUnclaimedRewards = useCallback(async (address: string) => {
     try {
       const rewards = await fetchChainRewards(chain.rest, address, chain.denom, chain.decimals);
       setState(prev => ({ ...prev, unclaimedRewards: rewards }));
     } catch (err) {
-      logError(err, 'Fetching rewards');
+      logError(err, `Failed to fetch ${chainName} rewards`);
     }
-  }, [chain]);
+  }, [chain, chainName]);
 
   const connect = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -107,9 +106,9 @@ export function useKeplr(chainName: string = 'osmosis') {
   const disconnect = useCallback(() => {
     setState({
       address: "",
-      balance: "0.00",
-      stakedBalance: "0.00",
-      unclaimedRewards: "0.00",
+      balance: "0",
+      stakedBalance: "0",
+      unclaimedRewards: "0",
       delegations: [],
       status: 'Disconnected',
       isLoading: false,
@@ -119,8 +118,6 @@ export function useKeplr(chainName: string = 'osmosis') {
 
   // Handle Keplr account changes
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     const handleAccountChange = () => {
       if (state.status === 'Connected') {
         connect();
