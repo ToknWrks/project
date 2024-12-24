@@ -1,9 +1,24 @@
-import { SUPPORTED_CHAINS, CHAIN_NAME_MAP } from '@/lib/constants/chains';
+import { SUPPORTED_CHAINS, getChainConfig } from '@/lib/constants/chains';
 
+// Create networks array for navigation
 export const NETWORKS = Object.entries(SUPPORTED_CHAINS).map(([key, chain]) => ({
   name: chain.name,
-  // Use the external path for routing
-  href: key === 'osmosis' ? '/' : `/${Object.entries(CHAIN_NAME_MAP).find(([_, v]) => v === key)?.[0] || key}`,
+  href: key === 'osmosis' ? '/' : `/${key}`,
   icon: chain.icon,
   chainId: chain.chainId
 }));
+
+// Helper to get network path
+export function getNetworkPath(chainName: string): string {
+  const chain = getChainConfig(chainName);
+  if (!chain) return '/';
+  
+  const key = chain.chainId.split('-')[0];
+  return key === 'osmosis' ? '/' : `/${key}`;
+}
+
+// Helper to get network icon
+export function getNetworkIcon(chainName: string): string | undefined {
+  const chain = getChainConfig(chainName);
+  return chain?.icon;
+}
