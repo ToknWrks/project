@@ -4,6 +4,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { SUPPORTED_CHAINS } from '@/lib/constants/chains';
 import { logError } from '@/lib/error-handling';
 import { MsgDelegate } from 'cosmjs-types/cosmos/staking/v1beta1/tx';
+import { broadcastTransaction } from '@/lib/utils/transaction';
 
 interface DelegateParams {
   validatorAddress: string;
@@ -48,18 +49,13 @@ export function useDelegate(chainName: string) {
         })
       };
 
-      const tx = await client.signAndBroadcast(
+      await broadcastTransaction({
+        client,
         address,
-        [msg],
-        {
-          amount: [{ amount: "5000", denom: chain.denom }],
-          gas: "200000"
-        }
-      );
-
-      if (tx.code !== 0) {
-        throw new Error(tx.rawLog || "Failed to delegate");
-      }
+        messages: [msg],
+        chainName,
+        memo: `Delegate ${amount} ${chain.symbol}`
+      });
 
       toast({
         title: "Success",
