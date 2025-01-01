@@ -14,7 +14,7 @@ export const NOBLE_USDC: Token = {
   symbol: 'USDC',
   name: 'Noble USDC',
   decimals: 6,
-  logo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/noble/images/usdc.svg'
+  logo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/noble/images/usdc.png'
 };
 
 // Helper function to get token info for a chain

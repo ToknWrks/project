@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import * as React from "react";
 import { Menu, Settings, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SettingsModal } from "./settings-modal";
@@ -17,17 +15,18 @@ import { getChainUrl } from '@/lib/utils/chain';
 import { ClaimAllButton } from "./claim-all-button";
 import { ThemeToggle } from "./theme-toggle";
 import { useChainSettings } from "@/hooks/use-chain-settings";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface HeaderProps {
   chainName?: string;
 }
 
 export function Header({ chainName = 'osmosis' }: HeaderProps) {
-  const [showSwapModal, setShowSwapModal] = useState(false);
-  const [showWalletModal, setShowWalletModal] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showSwapModal, setShowSwapModal] = React.useState(false);
+  const [showWalletModal, setShowWalletModal] = React.useState(false);
+  const [showSettingsModal, setShowSettingsModal] = React.useState(false);
   const { status, isLoading, address, disconnect, unclaimedRewards, connect } = useKeplr(chainName);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
   const { enabledChains } = useChainSettings();
 
   // Filter networks based on enabled chains
@@ -69,50 +68,52 @@ export function Header({ chainName = 'osmosis' }: HeaderProps) {
             <SheetHeader>
               <SheetTitle className="text-left">ToknWrks</SheetTitle>
             </SheetHeader>
-            <div className="grid gap-4 py-4">
-              {enabledNetworks.map((network) => (
+            <ScrollArea className="h-[calc(100vh-4rem)] py-4">
+              <div className="flex flex-col gap-4">
+                {enabledNetworks.map((network) => (
+                  <Link
+                    key={network.href}
+                    href={network.href}
+                    className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <div className="w-5 h-5 relative flex-shrink-0">
+                      <Image
+                        src={network.icon}
+                        alt={network.name}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    {network.name}
+                  </Link>
+                ))}
+                <Separator />
                 <Link
-                  key={network.href}
-                  href={network.href}
+                  href="/chains"
                   className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary"
                   onClick={() => setIsOpen(false)}
                 >
                   <div className="w-5 h-5 relative flex-shrink-0">
                     <Image
-                      src={network.icon}
-                      alt={network.name}
+                      src="/chain-logos/all-chains.svg"
+                      alt="All Chains"
                       fill
                       className="object-contain"
                     />
                   </div>
-                  {network.name}
+                  All Chains
                 </Link>
-              ))}
-              <Separator />
-              <Link
-                href="/chains"
-                className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary"
-                onClick={() => setIsOpen(false)}
-              >
-                <div className="w-5 h-5 relative flex-shrink-0">
-                  <Image
-                    src="/chain-logos/all-chains.svg"
-                    alt="All Chains"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                All Chains
-              </Link>
-              <Link
-                href="/settings/chains"
-                className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary"
-                onClick={() => setIsOpen(false)}
-              >
-                <Settings className="h-5 w-5" />
-                Chain Settings
-              </Link>
-            </div>
+                <Link
+                  href="/settings/chains"
+                  className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Settings className="h-5 w-5" />
+                  Chain Settings
+                </Link>
+              </div>
+            </ScrollArea>
           </SheetContent>
         </Sheet>
 

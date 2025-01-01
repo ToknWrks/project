@@ -6,12 +6,11 @@ export const CHAIN_TO_COINGECKO_ID: { [key: string]: string } = {
   'akashnet': 'akash-network',
   'regen': 'regen',
   'juno': 'juno-network',
-  'dydx': 'dydx',
-  'quicksilver': 'quicksilver',
-  'secretnetwork': 'secret',
-  'stargaze': 'stargaze',
-  'sentinel': 'sentinel',
-  'stride': 'stride',
   'saga': 'saga-2',
-  'omniflixhub': 'omniflix-network'
+  'omniflixhub': 'omniflix-network',
+  'stargaze': 'stargaze',
+  'stride': 'stride',
+  'sentinel': 'sentinel',
+  'coreum': 'coreum',
+  'noble': 'noble'
 } as const;

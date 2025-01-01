@@ -9,8 +9,6 @@ import { useKeplr } from "@/hooks/use-keplr";
 import { useMultiChainBalances } from "@/hooks/use-multi-chain-balances";
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
 
 export default function ChainSettingsPage() {
@@ -18,14 +16,12 @@ export default function ChainSettingsPage() {
   const { status } = useKeplr();
   const { balances } = useMultiChainBalances(undefined);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showSelectedOnly, setShowSelectedOnly] = useState(false);
 
   // Filter and sort chains
   const filteredChains = useMemo(() => {
     return Object.entries(SUPPORTED_CHAINS)
       .filter(([chainName, chain]) => {
-        const matchesSearch = chain.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesSearch && (!showSelectedOnly || isChainEnabled(chainName));
+        return chain.name.toLowerCase().includes(searchQuery.toLowerCase());
       })
       .sort((a, b) => {
         // Sort chains with balance first, then alphabetically
@@ -37,7 +33,7 @@ export default function ChainSettingsPage() {
         if (!aHasBalance && bHasBalance) return 1;
         return aChain.name.localeCompare(bChain.name);
       });
-  }, [searchQuery, balances, showSelectedOnly, isChainEnabled]);
+  }, [searchQuery, balances]);
 
   const chainIds = filteredChains.map(([chainName]) => chainName);
   const allEnabled = chainIds.every(chain => isChainEnabled(chain));
@@ -60,14 +56,6 @@ export default function ChainSettingsPage() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>Enabled Chains</CardTitle>
             <div className="flex items-center gap-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="show-selected"
-                  checked={showSelectedOnly}
-                  onCheckedChange={setShowSelectedOnly}
-                />
-                <Label htmlFor="show-selected">Show Selected</Label>
-              </div>
               <ChainSearch value={searchQuery} onChange={setSearchQuery} />
               <Button
                 variant="outline"

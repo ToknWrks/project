@@ -7,11 +7,12 @@ export const CHAIN_NAME_MAP = {
   'regen': 'regen',
   'juno': 'juno',
   'saga': 'saga',
-  'secret': 'secretnetwork',
   'stargaze': 'stargaze',
   'sentinel': 'sentinel',
   'stride': 'stride',
-  'dydx': 'dydx'
+  'dydx': 'dydx',
+  'noble': 'noble',
+  'coreum': 'coreum'
 } as const;
 
 // Supported chains configuration
@@ -93,17 +94,6 @@ export const SUPPORTED_CHAINS = {
     rpc: "https://rpc.cosmos.directory/saga",
     unbondingDays: 14
   },
-  secretnetwork: {
-    name: "Secret Network",
-    chainId: "secret-4",
-    denom: "uscrt",
-    symbol: "SCRT",
-    decimals: 6,
-    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/scrt.png",
-    rest: "https://rest.cosmos.directory/secretnetwork",
-    rpc: "https://rpc.cosmos.directory/secretnetwork",
-    unbondingDays: 21
-  },
   stargaze: {
     name: "Stargaze",
     chainId: "stargaze-1",
@@ -146,6 +136,39 @@ export const SUPPORTED_CHAINS = {
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/dydx/images/dydx.png",
     rest: "https://rest.cosmos.directory/dydx",
     rpc: "https://rpc.cosmos.directory/dydx",
+    unbondingDays: 14
+  },
+  omniflixhub: {
+    name: "OmniFlix",
+    chainId: "omniflixhub-1",
+    denom: "uflix",
+    symbol: "FLIX",
+    decimals: 6,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/omniflixhub/images/flix.png",
+    rest: "https://rest.cosmos.directory/omniflixhub",
+    rpc: "https://rpc.cosmos.directory/omniflixhub",
+    unbondingDays: 14
+  },
+  noble: {
+    name: "Noble",
+    chainId: "noble-1",
+    denom: "unble",
+    symbol: "NOBLE",
+    decimals: 6,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/noble/images/noble.png",
+    rest: "https://rest.cosmos.directory/noble",
+    rpc: "https://rpc.cosmos.directory/noble",
+    unbondingDays: 14
+  },
+  coreum: {
+    name: "Coreum",
+    chainId: "coreum-mainnet-1",
+    denom: "ucore",
+    symbol: "CORE",
+    decimals: 6,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/coreum/images/coreum.png",
+    rest: "https://rest.mainnet-1.coreum.dev",
+    rpc: "https://rpc.mainnet-1.coreum.dev",
     unbondingDays: 14
   }
 } as const;
