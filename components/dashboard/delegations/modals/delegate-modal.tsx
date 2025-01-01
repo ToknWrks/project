@@ -6,8 +6,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useDelegate } from "@/hooks/staking/use-delegate";
-import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
 import { useKeplr } from "@/hooks/use-keplr";
+import { useChainConfig } from "@/hooks/use-chain-config";
 import { formatNumber } from "@/lib/utils";
 
 interface DelegateModalProps {
@@ -30,7 +30,7 @@ export function DelegateModal({
   const [amount, setAmount] = useState("");
   const { delegate, isLoading, error } = useDelegate(chainName);
   const { balance } = useKeplr(chainName);
-  const chain = SUPPORTED_CHAINS[chainName as keyof typeof SUPPORTED_CHAINS];
+  const chain = useChainConfig(chainName);
 
   const handleDelegate = async () => {
     const success = await delegate({

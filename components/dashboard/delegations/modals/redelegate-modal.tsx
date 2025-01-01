@@ -9,7 +9,7 @@ import { useRedelegate } from "@/hooks/staking/use-redelegate";
 import { useValidators } from "@/hooks/staking/use-validators";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
+import { useChainConfig } from "@/hooks/use-chain-config";
 
 interface RedelegateModalProps {
   open: boolean;
@@ -33,7 +33,7 @@ export function RedelegateModal({
   const [selectedValidator, setSelectedValidator] = useState("");
   const { redelegate, isLoading, error } = useRedelegate(chainName);
   const { validators, isLoading: isLoadingValidators } = useValidators(chainName);
-  const chain = SUPPORTED_CHAINS[chainName as keyof typeof SUPPORTED_CHAINS];
+  const chain = useChainConfig(chainName);
 
   const filteredValidators = validators.filter(v => 
     v.name.toLowerCase().includes(search.toLowerCase()) &&

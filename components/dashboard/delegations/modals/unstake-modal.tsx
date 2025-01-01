@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useUnstake } from "@/hooks/staking/use-unstake";
-import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
+import { useChainConfig } from "@/hooks/use-chain-config";
 import { formatNumber } from "@/lib/utils";
 
 interface UnstakeModalProps {
@@ -30,7 +30,7 @@ export function UnstakeModal({
 }: UnstakeModalProps) {
   const [amount, setAmount] = useState("");
   const { unstake, isLoading, error } = useUnstake(chainName);
-  const chain = SUPPORTED_CHAINS[chainName as keyof typeof SUPPORTED_CHAINS];
+  const chain = useChainConfig(chainName);
 
   const handleUnstake = async () => {
     const success = await unstake({

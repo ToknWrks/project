@@ -10,39 +10,38 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
+import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
 import { formatNumber } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 export default function ChainsPage() {
   const { address, status } = useKeplr();
   const { balances, isLoading, loadingChains } = useMultiChainBalances(
     status === 'Connected' ? address : undefined
   );
-  const { chains, enabledChains } = useChainSettings();
+  const { enabledChains } = useChainSettings();
 
   // Get enabled chains with balances
   const chainsWithBalances = useMemo(() => {
-    return chains
-      .filter(chain => enabledChains.has(chain.chainId.split('-')[0]))
-      .map(chain => {
-        const chainKey = chain.chainId.split('-')[0];
-        return {
-          chainName: chainKey,
-          chain,
-          balance: balances[chainKey] || {
+    return Object.entries(SUPPORTED_CHAINS)
+      .filter(([chainName]) => enabledChains.has(chainName))
+      .map(([chainName, chain]) => ({
+        chainName,
+        chain,
+        balance: balances[chainName] || {
+          available: "0",
+          staked: "0",
+          rewards: "0",
+          usdValues: {
             available: "0",
             staked: "0",
             rewards: "0",
-            usdValues: {
-              available: "0",
-              staked: "0",
-              rewards: "0",
-              total: "0"
-            }
+            total: "0"
           }
-        };
-      })
+        }
+      }))
       .sort((a, b) => Number(b.balance.usdValues.total) - Number(a.balance.usdValues.total));
-  }, [chains, balances, enabledChains]);
+  }, [balances, enabledChains]);
 
   // Calculate total value across all chains
   const totalValue = useMemo(() => {
@@ -120,16 +119,13 @@ export default function ChainsPage() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {chainsWithBalances.map(({ chainName, chain, balance }) => {
                   const href = chainName === 'osmosis' ? '/' : `/${chainName}`;
-                  const hasBalance = Number(balance.available) > 0 || 
-                                   Number(balance.staked) > 0 || 
-                                   Number(balance.rewards) > 0;
 
                   return (
                     <Link key={chainName} href={href}>
                       <Card className="hover:bg-muted/50 transition-colors cursor-pointer relative">
                         {loadingChains.has(chainName) && (
                           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                           </div>
                         )}
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

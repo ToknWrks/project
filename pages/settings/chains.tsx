@@ -11,9 +11,10 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
 
 export default function ChainSettingsPage() {
-  const { chains, toggleChain, toggleAll, isChainEnabled } = useChainSettings();
+  const { toggleChain, toggleAll, isChainEnabled } = useChainSettings();
   const { status } = useKeplr();
   const { balances } = useMultiChainBalances(undefined);
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,24 +22,24 @@ export default function ChainSettingsPage() {
 
   // Filter and sort chains
   const filteredChains = useMemo(() => {
-    return chains
-      .filter(chain => {
+    return Object.entries(SUPPORTED_CHAINS)
+      .filter(([chainName, chain]) => {
         const matchesSearch = chain.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesSearch && (!showSelectedOnly || isChainEnabled(chain.chainId.split('-')[0]));
+        return matchesSearch && (!showSelectedOnly || isChainEnabled(chainName));
       })
       .sort((a, b) => {
         // Sort chains with balance first, then alphabetically
-        const aKey = a.chainId.split('-')[0];
-        const bKey = b.chainId.split('-')[0];
+        const [aKey, aChain] = a;
+        const [bKey, bChain] = b;
         const aHasBalance = Boolean(balances[aKey]);
         const bHasBalance = Boolean(balances[bKey]);
         if (aHasBalance && !bHasBalance) return -1;
         if (!aHasBalance && bHasBalance) return 1;
-        return a.name.localeCompare(b.name);
+        return aChain.name.localeCompare(bChain.name);
       });
-  }, [chains, searchQuery, balances, showSelectedOnly, isChainEnabled]);
+  }, [searchQuery, balances, showSelectedOnly, isChainEnabled]);
 
-  const chainIds = filteredChains.map(chain => chain.chainId.split('-')[0]);
+  const chainIds = filteredChains.map(([chainName]) => chainName);
   const allEnabled = chainIds.every(chain => isChainEnabled(chain));
 
   return (
@@ -65,7 +66,7 @@ export default function ChainSettingsPage() {
                   checked={showSelectedOnly}
                   onCheckedChange={setShowSelectedOnly}
                 />
-                <Label htmlFor="show-selected">Show Selected Only</Label>
+                <Label htmlFor="show-selected">Show Selected</Label>
               </div>
               <ChainSearch value={searchQuery} onChange={setSearchQuery} />
               <Button
@@ -79,23 +80,22 @@ export default function ChainSettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredChains.map((chain) => {
-                const chainKey = chain.chainId.split('-')[0];
-                const chainHasBalance = Boolean(balances[chainKey]);
-                const isEnabled = isChainEnabled(chainKey);
-                const isOsmosis = chainKey === 'osmosis';
+              {filteredChains.map(([chainName, chain]) => {
+                const chainHasBalance = Boolean(balances[chainName]);
+                const isEnabled = isChainEnabled(chainName);
+                const isOsmosis = chainName === 'osmosis';
                 
                 return (
                   <div
-                    key={chain.chainId}
+                    key={chainName}
                     className={`flex items-center space-x-4 p-4 hover:bg-muted/50 rounded-lg transition-colors border ${
                       chainHasBalance ? 'bg-muted/30' : ''
                     }`}
                   >
                     <Checkbox
-                      id={chainKey}
+                      id={chainName}
                       checked={isEnabled}
-                      onCheckedChange={() => toggleChain(chainKey)}
+                      onCheckedChange={() => toggleChain(chainName)}
                       disabled={isOsmosis}
                     />
                     {chain.icon && (
@@ -110,7 +110,7 @@ export default function ChainSettingsPage() {
                     )}
                     <div className="flex flex-col flex-1 min-w-0">
                       <label
-                        htmlFor={chainKey}
+                        htmlFor={chainName}
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer truncate"
                       >
                         {chain.name}
