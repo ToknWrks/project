@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { OSMOSIS_TOKENS, NOBLE_USDC } from '@/lib/constants/tokens';
+import { NOBLE_USDC } from '@/lib/constants/tokens';
 
 interface SwapState {
   fromChain: string;
@@ -34,7 +34,7 @@ interface SwapState {
 const INITIAL_STATE = {
   fromChain: 'osmosis-1',
   toChain: 'noble-1',
-  fromToken: OSMOSIS_TOKENS[0].denom,
+  fromToken: '',
   toToken: NOBLE_USDC.denom,
   estimatedAmount: "0",
   exchangeRate: "0",

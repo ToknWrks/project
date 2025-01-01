@@ -1,10 +1,17 @@
-import { chains, assets } from 'chain-registry';
-
 // Chain name mapping for routing and display
 export const CHAIN_NAME_MAP = {
   'omniflix': 'omniflixhub',
   'cosmos': 'cosmoshub',
-  'akash': 'akashnet'
+  'akash': 'akashnet',
+  'celestia': 'celestia',
+  'regen': 'regen',
+  'juno': 'juno',
+  'saga': 'saga',
+  'secret': 'secretnetwork',
+  'stargaze': 'stargaze',
+  'sentinel': 'sentinel',
+  'stride': 'stride',
+  'dydx': 'dydx'
 } as const;
 
 // Supported chains configuration
@@ -22,7 +29,7 @@ export const SUPPORTED_CHAINS = {
   },
   cosmoshub: {
     name: "Cosmos Hub",
-    chainId: "cosmoshub-4", 
+    chainId: "cosmoshub-4",
     denom: "uatom",
     symbol: "ATOM",
     decimals: 6,
@@ -34,7 +41,7 @@ export const SUPPORTED_CHAINS = {
   akashnet: {
     name: "Akash",
     chainId: "akashnet-2",
-    denom: "uakt", 
+    denom: "uakt",
     symbol: "AKT",
     decimals: 6,
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/akash/images/akt.png",
@@ -46,7 +53,7 @@ export const SUPPORTED_CHAINS = {
     name: "Celestia",
     chainId: "celestia-1",
     denom: "utia",
-    symbol: "TIA", 
+    symbol: "TIA",
     decimals: 6,
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/celestia/images/celestia.png",
     rest: "https://rest.cosmos.directory/celestia",
@@ -60,7 +67,7 @@ export const SUPPORTED_CHAINS = {
     symbol: "REGEN",
     decimals: 6,
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/regen/images/regen.png",
-    rest: "https://rest.cosmos.directory/regen", 
+    rest: "https://rest.cosmos.directory/regen",
     rpc: "https://rpc.cosmos.directory/regen",
     unbondingDays: 21
   },
@@ -75,15 +82,70 @@ export const SUPPORTED_CHAINS = {
     rpc: "https://rpc.cosmos.directory/juno",
     unbondingDays: 28
   },
-  omniflixhub: {
-    name: "OmniFlix",
-    chainId: "omniflixhub-1",
-    denom: "uflix",
-    symbol: "FLIX",
+  saga: {
+    name: "Saga",
+    chainId: "saga-1",
+    denom: "usaga",
+    symbol: "SAGA",
     decimals: 6,
-    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/omniflixhub/images/flix.png",
-    rest: "https://rest.cosmos.directory/omniflixhub",
-    rpc: "https://rpc.cosmos.directory/omniflixhub",
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/saga/images/saga.png",
+    rest: "https://rest.cosmos.directory/saga",
+    rpc: "https://rpc.cosmos.directory/saga",
+    unbondingDays: 14
+  },
+  secretnetwork: {
+    name: "Secret Network",
+    chainId: "secret-4",
+    denom: "uscrt",
+    symbol: "SCRT",
+    decimals: 6,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/scrt.png",
+    rest: "https://rest.cosmos.directory/secretnetwork",
+    rpc: "https://rpc.cosmos.directory/secretnetwork",
+    unbondingDays: 21
+  },
+  stargaze: {
+    name: "Stargaze",
+    chainId: "stargaze-1",
+    denom: "ustars",
+    symbol: "STARS",
+    decimals: 6,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/stargaze/images/stars.png",
+    rest: "https://rest.cosmos.directory/stargaze",
+    rpc: "https://rpc.cosmos.directory/stargaze",
+    unbondingDays: 14
+  },
+  sentinel: {
+    name: "Sentinel",
+    chainId: "sentinelhub-2",
+    denom: "udvpn",
+    symbol: "DVPN",
+    decimals: 6,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/sentinel/images/dvpn.png",
+    rest: "https://rest.cosmos.directory/sentinel",
+    rpc: "https://rpc.cosmos.directory/sentinel",
+    unbondingDays: 21
+  },
+  stride: {
+    name: "Stride",
+    chainId: "stride-1",
+    denom: "ustrd",
+    symbol: "STRD",
+    decimals: 6,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/strd.png",
+    rest: "https://rest.cosmos.directory/stride",
+    rpc: "https://rpc.cosmos.directory/stride",
+    unbondingDays: 14
+  },
+  dydx: {
+    name: "dYdX",
+    chainId: "dydx-mainnet-1",
+    denom: "adydx",
+    symbol: "DYDX",
+    decimals: 18,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/dydx/images/dydx.png",
+    rest: "https://rest.cosmos.directory/dydx",
+    rpc: "https://rpc.cosmos.directory/dydx",
     unbondingDays: 14
   }
 } as const;

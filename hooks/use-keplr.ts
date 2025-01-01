@@ -62,8 +62,6 @@ export function useKeplr(chainName: string = 'osmosis') {
   }, [chain, chainName]);
 
   const connect = useCallback(async () => {
-    if (typeof window === "undefined") return;
-    
     setState(prev => ({ ...prev, isLoading: true, status: 'Connecting', error: null }));
 
     try {
@@ -116,7 +114,6 @@ export function useKeplr(chainName: string = 'osmosis') {
     });
   }, []);
 
-  // Handle Keplr account changes
   useEffect(() => {
     const handleAccountChange = () => {
       if (state.status === 'Connected') {
@@ -130,7 +127,6 @@ export function useKeplr(chainName: string = 'osmosis') {
     };
   }, [state.status, connect]);
 
-  // Auto-connect if Keplr is available
   useEffect(() => {
     const autoConnect = async () => {
       if (typeof window === "undefined" || !window.keplr) return;
@@ -152,12 +148,12 @@ export function useKeplr(chainName: string = 'osmosis') {
     ...state,
     connect,
     disconnect,
+    chainId: chain.chainId,
     getSigningClient: async () => {
       if (!window.keplr) throw new Error("Keplr not installed");
       await window.keplr.enable(chain.chainId);
       const offlineSigner = window.keplr.getOfflineSigner(chain.chainId);
       return SigningStargateClient.connectWithSigner(chain.rpc, offlineSigner);
-    },
-    chainId: chain.chainId
+    }
   };
 }

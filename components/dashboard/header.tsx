@@ -12,7 +12,8 @@ import Link from "next/link";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import { NETWORKS } from '@/config/networks';
+import { SUPPORTED_CHAINS } from '@/lib/constants/chains';
+import { getChainUrl } from '@/lib/utils/chain';
 import { ClaimAllButton } from "./claim-all-button";
 import { ThemeToggle } from "./theme-toggle";
 import { useChainSettings } from "@/hooks/use-chain-settings";
@@ -30,9 +31,14 @@ export function Header({ chainName = 'osmosis' }: HeaderProps) {
   const { enabledChains } = useChainSettings();
 
   // Filter networks based on enabled chains
-  const enabledNetworks = NETWORKS.filter(network => 
-    enabledChains.has(network.chainId.split('-')[0])
-  );
+  const enabledNetworks = Object.entries(SUPPORTED_CHAINS)
+    .filter(([key]) => enabledChains.has(key))
+    .map(([key, chain]) => ({
+      name: chain.name,
+      href: getChainUrl(key),
+      icon: chain.icon,
+      chainId: chain.chainId
+    }));
 
   const isWalletConnected = status === 'Connected';
   const isWalletConnecting = isLoading;

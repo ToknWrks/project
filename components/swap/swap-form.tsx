@@ -1,3 +1,5 @@
+"use client";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TokenSelect } from "./token-select";
@@ -10,13 +12,14 @@ import { useKeplr } from "@/hooks/use-keplr";
 import { useSwap } from "@/hooks/swap/use-swap";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { OSMOSIS_TOKENS, NOBLE_USDC } from "@/lib/constants/tokens";
+import { getChainToken } from "@/lib/constants/tokens";
 
 interface SwapFormProps {
   onClose: () => void;
+  chainName?: string;
 }
 
-export function SwapForm({ onClose }: SwapFormProps) {
+export function SwapForm({ onClose, chainName = 'osmosis' }: SwapFormProps) {
   const { 
     fromChain,
     toChain,
@@ -38,8 +41,8 @@ export function SwapForm({ onClose }: SwapFormProps) {
     setSlippage
   } = useSwapStore();
   
-  const { status } = useKeplr();
-  const { getEstimate, executeSwap, switchTokens } = useSwap();
+  const { status } = useKeplr(chainName);
+  const { getEstimate, executeSwap, switchTokens } = useSwap(chainName);
   
   const [amount, setAmount] = useState("");
 
@@ -50,8 +53,9 @@ export function SwapForm({ onClose }: SwapFormProps) {
     }
   };
 
-  const fromSymbol = OSMOSIS_TOKENS.find(t => t.denom === fromToken)?.symbol || "OSMO";
-  const toSymbol = toToken === NOBLE_USDC.denom ? NOBLE_USDC.symbol : "OSMO";
+  const fromTokenInfo = getChainToken(chainName);
+  const fromSymbol = fromTokenInfo?.symbol || "OSMO";
+  const toSymbol = "USDC";
 
   return (
     <div className="grid gap-6 py-4">
@@ -74,7 +78,7 @@ export function SwapForm({ onClose }: SwapFormProps) {
           <TokenSelect
             value={fromToken}
             onValueChange={setFromToken}
-            chainName="osmosis"
+            chainName={chainName}
           />
         </div>
       </div>

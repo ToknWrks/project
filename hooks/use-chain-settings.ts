@@ -1,19 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { chains } from 'chain-registry';
-import { getChainInfo } from '@/lib/utils/chain-registry';
-
-// Get supported chains from registry
-const registryChains = chains
-  .filter(chain => 
-    chain.network_type === 'mainnet' &&
-    chain.status === 'live' &&
-    chain.chain_name &&
-    chain.apis?.rest?.length > 0 &&
-    chain.apis?.rpc?.length > 0
-  )
-  .map(getChainInfo)
-  .filter((chain): chain is NonNullable<typeof chain> => chain !== null);
+import { SUPPORTED_CHAINS } from '@/lib/constants/chains';
 
 interface ChainSettingsState {
   enabledChains: Set<string>;
@@ -23,10 +10,14 @@ interface ChainSettingsState {
   isChainEnabled: (chainName: string) => boolean;
 }
 
+// Get list of all supported chain keys
+const allChainKeys = Object.keys(SUPPORTED_CHAINS);
+
 export const useChainSettingsStore = create<ChainSettingsState>()(
   persist(
     (set, get) => ({
-      enabledChains: new Set(['osmosis']), // Osmosis enabled by default
+      // Initialize with all chains enabled
+      enabledChains: new Set(allChainKeys),
       setEnabledChains: (chains) => set({ enabledChains: new Set(chains) }),
       toggleChain: (chainName) => set((state) => {
         const newEnabledChains = new Set(state.enabledChains);
@@ -81,7 +72,6 @@ export const useChainSettingsStore = create<ChainSettingsState>()(
 export function useChainSettings() {
   const store = useChainSettingsStore();
   return {
-    chains: registryChains,
     enabledChains: store.enabledChains,
     toggleChain: store.toggleChain,
     toggleAll: store.toggleAll,
