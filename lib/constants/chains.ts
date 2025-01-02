@@ -7,13 +7,24 @@ export const CHAIN_NAME_MAP = {
   'regen': 'regen',
   'juno': 'juno',
   'saga': 'saga',
+  'secret': 'secretnetwork',
   'stargaze': 'stargaze',
   'sentinel': 'sentinel',
   'stride': 'stride',
   'dydx': 'dydx',
   'noble': 'noble',
+  'kujira': 'kujira',
   'coreum': 'coreum'
 } as const;
+
+// Default enabled chains
+export const DEFAULT_ENABLED_CHAINS = [
+  'osmosis',  // Required chain
+  'cosmoshub',
+  'celestia',
+  'akash',
+  'juno'
+];
 
 // Supported chains configuration
 export const SUPPORTED_CHAINS = {
@@ -26,28 +37,35 @@ export const SUPPORTED_CHAINS = {
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/osmosis/images/osmo.png",
     rest: "https://rest.cosmos.directory/osmosis",
     rpc: "https://rpc.cosmos.directory/osmosis",
-    unbondingDays: 14
+    gasPrice: "0.0025uosmo",
+    gasMultiplier: 1.2,
+    unbondingDays: 14,
+    required: true // Osmosis is required and cannot be disabled
   },
   cosmoshub: {
     name: "Cosmos Hub",
     chainId: "cosmoshub-4",
-    denom: "uatom",
+    denom: "uatom", 
     symbol: "ATOM",
     decimals: 6,
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png",
     rest: "https://rest.cosmos.directory/cosmoshub",
     rpc: "https://rpc.cosmos.directory/cosmoshub",
+    gasPrice: "0.025uatom",
+    gasMultiplier: 2.0,
     unbondingDays: 21
   },
   akashnet: {
     name: "Akash",
     chainId: "akashnet-2",
     denom: "uakt",
-    symbol: "AKT",
+    symbol: "AKT", 
     decimals: 6,
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/akash/images/akt.png",
     rest: "https://rest.cosmos.directory/akash",
     rpc: "https://rpc.cosmos.directory/akash",
+    gasPrice: "0.025uakt",
+    gasMultiplier: 1.3,
     unbondingDays: 21
   },
   celestia: {
@@ -57,8 +75,10 @@ export const SUPPORTED_CHAINS = {
     symbol: "TIA",
     decimals: 6,
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/celestia/images/celestia.png",
-    rest: "https://rest.cosmos.directory/celestia",
+    rest: "https://rest.cosmos.directory/celestia", 
     rpc: "https://rpc.cosmos.directory/celestia",
+    gasPrice: "0.025utia",
+    gasMultiplier: 1.3,
     unbondingDays: 14
   },
   regen: {
@@ -70,6 +90,8 @@ export const SUPPORTED_CHAINS = {
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/regen/images/regen.png",
     rest: "https://rest.cosmos.directory/regen",
     rpc: "https://rpc.cosmos.directory/regen",
+    gasPrice: "0.025uregen",
+    gasMultiplier: 1.3,
     unbondingDays: 21
   },
   juno: {
@@ -81,62 +103,9 @@ export const SUPPORTED_CHAINS = {
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/juno/images/juno.png",
     rest: "https://rest.cosmos.directory/juno",
     rpc: "https://rpc.cosmos.directory/juno",
+    gasPrice: "0.025ujuno",
+    gasMultiplier: 1.3,
     unbondingDays: 28
-  },
-  saga: {
-    name: "Saga",
-    chainId: "saga-1",
-    denom: "usaga",
-    symbol: "SAGA",
-    decimals: 6,
-    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/saga/images/saga.png",
-    rest: "https://rest.cosmos.directory/saga",
-    rpc: "https://rpc.cosmos.directory/saga",
-    unbondingDays: 14
-  },
-  stargaze: {
-    name: "Stargaze",
-    chainId: "stargaze-1",
-    denom: "ustars",
-    symbol: "STARS",
-    decimals: 6,
-    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/stargaze/images/stars.png",
-    rest: "https://rest.cosmos.directory/stargaze",
-    rpc: "https://rpc.cosmos.directory/stargaze",
-    unbondingDays: 14
-  },
-  sentinel: {
-    name: "Sentinel",
-    chainId: "sentinelhub-2",
-    denom: "udvpn",
-    symbol: "DVPN",
-    decimals: 6,
-    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/sentinel/images/dvpn.png",
-    rest: "https://rest.cosmos.directory/sentinel",
-    rpc: "https://rpc.cosmos.directory/sentinel",
-    unbondingDays: 21
-  },
-  stride: {
-    name: "Stride",
-    chainId: "stride-1",
-    denom: "ustrd",
-    symbol: "STRD",
-    decimals: 6,
-    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/strd.png",
-    rest: "https://rest.cosmos.directory/stride",
-    rpc: "https://rpc.cosmos.directory/stride",
-    unbondingDays: 14
-  },
-  dydx: {
-    name: "dYdX",
-    chainId: "dydx-mainnet-1",
-    denom: "adydx",
-    symbol: "DYDX",
-    decimals: 18,
-    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/dydx/images/dydx.png",
-    rest: "https://rest.cosmos.directory/dydx",
-    rpc: "https://rpc.cosmos.directory/dydx",
-    unbondingDays: 14
   },
   omniflixhub: {
     name: "OmniFlix",
@@ -147,17 +116,60 @@ export const SUPPORTED_CHAINS = {
     icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/omniflixhub/images/flix.png",
     rest: "https://rest.cosmos.directory/omniflixhub",
     rpc: "https://rpc.cosmos.directory/omniflixhub",
+    gasPrice: "0.025uflix",
+    gasMultiplier: 1.3,
+    unbondingDays: 21
+  },
+  secretnetwork: {
+    name: "Secret Network",
+    chainId: "secret-4",
+    denom: "uscrt",
+    symbol: "SCRT",
+    decimals: 6,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/secretnetwork/images/scrt.png",
+    rest: "https://rest.cosmos.directory/secretnetwork",
+    rpc: "https://rpc.cosmos.directory/secretnetwork",
+    gasPrice: "0.025uscrt",
+    gasMultiplier: 1.3,
+    unbondingDays: 21
+  },
+  stargaze: {
+    name: "Stargaze",
+    chainId: "stargaze-1",
+    denom: "ustars",
+    symbol: "STARS",
+    decimals: 6,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/stargaze/images/stars.png",
+    rest: "https://rest.cosmos.directory/stargaze",
+    rpc: "https://rpc.cosmos.directory/stargaze",
+    gasPrice: "0.025ustars",
+    gasMultiplier: 1.3,
     unbondingDays: 14
   },
   noble: {
     name: "Noble",
     chainId: "noble-1",
-    denom: "unble",
-    symbol: "NOBLE",
+    denom: "ustake",
+    symbol: "STAKE",
     decimals: 6,
-    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/noble/images/noble.png",
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/noble/images/stake.png",
     rest: "https://rest.cosmos.directory/noble",
     rpc: "https://rpc.cosmos.directory/noble",
+    gasPrice: "0.025ustake",
+    gasMultiplier: 1.3,
+    unbondingDays: 21
+  },
+  kujira: {
+    name: "Kujira",
+    chainId: "kaiyo-1",
+    denom: "ukuji",
+    symbol: "KUJI",
+    decimals: 6,
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/kujira/images/kuji.png",
+    rest: "https://rest.cosmos.directory/kujira",
+    rpc: "https://rpc.cosmos.directory/kujira",
+    gasPrice: "0.025ukuji",
+    gasMultiplier: 1.3,
     unbondingDays: 14
   },
   coreum: {
@@ -166,24 +178,30 @@ export const SUPPORTED_CHAINS = {
     denom: "ucore",
     symbol: "CORE",
     decimals: 6,
-    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/coreum/images/coreum.png",
-    rest: "https://rest.mainnet-1.coreum.dev",
-    rpc: "https://rpc.mainnet-1.coreum.dev",
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/coreum/images/core.png",
+    rest: "https://rest.cosmos.directory/coreum",
+    rpc: "https://rpc.cosmos.directory/coreum",
+    gasPrice: "0.025ucore",
+    gasMultiplier: 1.3,
     unbondingDays: 14
   }
 } as const;
 
-// Helper to get internal chain name
+// Types
+export type ChainName = keyof typeof SUPPORTED_CHAINS;
+export type ChainConfig = typeof SUPPORTED_CHAINS[ChainName];
+export type ChainPath = keyof typeof CHAIN_NAME_MAP;
+
+// Helper functions
 export function getInternalChainName(path: string): string {
   return CHAIN_NAME_MAP[path as keyof typeof CHAIN_NAME_MAP] || path;
 }
 
-// Helper to get chain config
 export function getChainConfig(chainName: string) {
   const internalName = getInternalChainName(chainName);
-  return SUPPORTED_CHAINS[internalName as keyof typeof SUPPORTED_CHAINS];
+  const config = SUPPORTED_CHAINS[internalName as keyof typeof SUPPORTED_CHAINS];
+  if (!config) {
+    throw new Error(`Unsupported chain: ${chainName}`);
+  }
+  return config;
 }
-
-// Types
-export type ChainName = keyof typeof SUPPORTED_CHAINS;
-export type ChainConfig = typeof SUPPORTED_CHAINS[ChainName];

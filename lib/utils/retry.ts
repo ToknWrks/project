@@ -1,4 +1,3 @@
-```typescript
 import { logError } from '@/lib/error-handling';
 
 interface RetryOptions {
@@ -16,7 +15,10 @@ const defaultOptions: Required<RetryOptions> = {
   backoffFactor: 2,
   shouldRetry: (error: any) => {
     // Retry on network errors or 5xx responses
-    return !error.response || (error.response.status >= 500 && error.response.status < 600);
+    if (error?.response?.status) {
+      return error.response.status >= 500 && error.response.status < 600;
+    }
+    return !error.response || error.code === 'ECONNABORTED';
   }
 };
 
@@ -49,4 +51,3 @@ export async function withRetry<T>(
 
   throw lastError;
 }
-```

@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 import { useEffect } from "react";
 
-export default function NoblePage() {
+export default function SecretNetworkPage() {
   const {
     address,
     status,
@@ -19,7 +19,7 @@ export default function NoblePage() {
     isLoading,
     error,
     connect
-  } = useKeplr('noble');
+  } = useKeplr('secretnetwork');
 
   useEffect(() => {
     if (status === 'Disconnected' && !isLoading) {
@@ -29,41 +29,41 @@ export default function NoblePage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header chainName="noble" />
+      <Header chainName="secretnetwork" />
       <main className="flex-1 space-y-4 p-8 pt-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Noble Dashboard</h1>
+          <h1 className="text-3xl font-bold">Secret Network Dashboard</h1>
         </div>
 
         {!status || status === 'Disconnected' ? (
           <Alert>
             <InfoIcon className="h-4 w-4" />
             <AlertDescription>
-              Connect your wallet to view your Noble balances and rewards
+              Connect your wallet to view your Secret Network balances and rewards
             </AlertDescription>
           </Alert>
         ) : (
           <>
             <div className="grid gap-4 md:grid-cols-4">
               <StatsCard
-                title="Available STAKE"
+                title="Available SCRT"
                 type="available"
                 value={Number(balance)}
                 icon={<CoinsIcon className="h-4 w-4 text-muted-foreground" />}
                 description="Available balance in your wallet"
                 isLoading={isLoading}
-                tokenSymbol="STAKE"
-                chainName="noble"
+                tokenSymbol="SCRT"
+                chainName="secretnetwork"
               />
               <StatsCard
-                title="Staked STAKE"
+                title="Staked SCRT"
                 type="staked"
                 value={Number(stakedBalance)}
                 icon={<PiggyBankIcon className="h-4 w-4 text-muted-foreground" />}
-                description="Total STAKE staked"
+                description="Total SCRT staked"
                 isLoading={isLoading}
-                tokenSymbol="STAKE"
-                chainName="noble"
+                tokenSymbol="SCRT"
+                chainName="secretnetwork"
               />
               <StatsCard
                 title="Unclaimed Rewards"
@@ -72,27 +72,27 @@ export default function NoblePage() {
                 icon={<CoinsIcon className="h-4 w-4 text-muted-foreground" />}
                 description="Claimable staking rewards"
                 isLoading={isLoading}
-                tokenSymbol="STAKE"
-                chainName="noble"
+                tokenSymbol="SCRT"
+                chainName="secretnetwork"
               />
               <StatsCard
                 title="Total Value"
                 type="converted"
                 value={Number(balance) + Number(stakedBalance) + Number(unclaimedRewards)}
                 icon={<DollarSignIcon className="h-4 w-4 text-muted-foreground" />}
-                description="Total value of all STAKE"
+                description="Total value of all SCRT"
                 isLoading={isLoading}
-                tokenSymbol="STAKE"
-                chainName="noble"
+                tokenSymbol="SCRT"
+                chainName="secretnetwork"
               />
             </div>
 
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-              <DelegationsCard chainName="noble" />
-              <RewardsChart chainName="noble" />
+              <DelegationsCard chainName="secretnetwork" />
+              <RewardsChart chainName="secretnetwork" />
             </div>
 
-            <ChainInfo chainName="noble" />
+            <ChainInfo chainName="secretnetwork" />
           </>
         )}
       </main>

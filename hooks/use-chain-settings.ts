@@ -2,41 +2,49 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { SUPPORTED_CHAINS } from '@/lib/constants/chains';
 
+// Default enabled chains
+const DEFAULT_ENABLED_CHAINS = [
+  'osmosis',  // Required chain
+  'cosmoshub',
+  'celestia',
+  'akash',
+  'juno'
+];
+
 interface ChainSettingsState {
   enabledChains: Set<string>;
-  setEnabledChains: (chains: string[]) => void;
   toggleChain: (chainName: string) => void;
   toggleAll: (chains: string[]) => void;
   isChainEnabled: (chainName: string) => boolean;
 }
 
-// Get list of all supported chain keys
-const allChainKeys = Object.keys(SUPPORTED_CHAINS);
-
 export const useChainSettingsStore = create<ChainSettingsState>()(
   persist(
     (set, get) => ({
-      // Initialize with all chains enabled
-      enabledChains: new Set(allChainKeys),
-      setEnabledChains: (chains) => set({ enabledChains: new Set(chains) }),
+      // Initialize with default chains enabled
+      enabledChains: new Set(DEFAULT_ENABLED_CHAINS),
+
       toggleChain: (chainName) => set((state) => {
+        // Don't allow disabling Osmosis
+        if (chainName === 'osmosis') return state;
+
         const newEnabledChains = new Set(state.enabledChains);
-        if (chainName === 'osmosis') {
-          // Don't allow disabling Osmosis
-          newEnabledChains.add('osmosis');
-        } else if (newEnabledChains.has(chainName)) {
+        if (newEnabledChains.has(chainName)) {
           newEnabledChains.delete(chainName);
         } else {
           newEnabledChains.add(chainName);
         }
         return { enabledChains: newEnabledChains };
       }),
+
       toggleAll: (chains) => set((state) => {
         const allEnabled = chains.every(chain => state.enabledChains.has(chain));
+        // Always keep Osmosis enabled
         return { 
           enabledChains: new Set(allEnabled ? ['osmosis'] : chains) 
         };
       }),
+
       isChainEnabled: (chainName) => get().enabledChains.has(chainName),
     }),
     {
@@ -49,7 +57,7 @@ export const useChainSettingsStore = create<ChainSettingsState>()(
           return {
             state: {
               ...state,
-              enabledChains: new Set(state.enabledChains)
+              enabledChains: new Set([...state.enabledChains, 'osmosis']) // Always include Osmosis
             }
           };
         },

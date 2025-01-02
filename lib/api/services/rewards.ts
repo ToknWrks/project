@@ -1,8 +1,8 @@
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
-import { createClaimRewardsMessages } from "@/lib/messages/claim-rewards";
 import { logError } from "@/lib/error-handling";
-import { calculateChainGas, calculateClaimRewardsGas, getGasPrice } from "@/lib/constants/gas";
+import { calculateClaimRewardsGas, getGasPrice } from "@/lib/utils/gas";
+import { retryFetch, validateJsonResponse } from "@/lib/utils/fetch";
 
 interface ClaimRewardsParams {
   chainName: string;
@@ -27,29 +27,41 @@ export async function claimChainRewards({
       throw new Error(`Unsupported chain: ${chainName}`);
     }
 
+    // Validate rewards exist before claiming
+    const rewardsResponse = await retryFetch(
+      `${chain.rest}/cosmos/distribution/v1beta1/delegators/${address}/rewards`,
+      {
+        validateResponse: validateJsonResponse,
+        timeout: 10000
+      }
+    );
+
+    const rewardsData = await rewardsResponse.json();
+    if (!rewardsData.rewards?.length) {
+      throw new Error('No rewards available to claim');
+    }
+
     // Create claim messages
-    const messages = createClaimRewardsMessages({
-      delegatorAddress: address,
-      validatorAddresses
-    });
+    const messages = validatorAddresses.map(validatorAddress => ({
+      typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+      value: {
+        delegatorAddress: address,
+        validatorAddress
+      }
+    }));
 
-    // Calculate chain-specific gas limit
-    const baseGas = calculateClaimRewardsGas(validatorAddresses.length);
-    const gasLimit = calculateChainGas(chainName, baseGas);
-
-    // Get chain-specific gas price
+    // Calculate gas with chain-specific adjustments
+    const gasLimit = calculateClaimRewardsGas(chainName, validatorAddresses.length);
     const gasPrice = getGasPrice(chainName);
-    const gasPriceAmount = gasPrice.match(/[\d.]+/)?.[0] || '0.025';
-    const gasPriceDenom = gasPrice.replace(/[\d.]+/, '') || chain.denom;
 
-    // Execute transaction with calculated gas
+    // Execute transaction
     const tx = await client.signAndBroadcast(
       address,
       messages,
       {
         amount: [{ 
-          amount: (Number(gasPriceAmount) * gasLimit).toString(),
-          denom: gasPriceDenom
+          amount: (Number(gasPrice.match(/[\d.]+/)?.[0]) * gasLimit).toString(),
+          denom: chain.denom 
         }],
         gas: gasLimit.toString()
       }
@@ -60,7 +72,7 @@ export async function claimChainRewards({
         throw new Error('Insufficient funds to pay for transaction fees');
       }
       if (tx.rawLog?.includes('out of gas')) {
-        throw new Error('Transaction failed due to insufficient gas. Please try again with higher gas.');
+        throw new Error('Transaction failed due to insufficient gas. Please try again.');
       }
       throw new Error(tx.rawLog || 'Failed to claim rewards');
     }

@@ -2,9 +2,9 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { SigningStargateClient } from "@cosmjs/stargate";
-import { getChainConfig } from '@/lib/constants/chains';
-import { fetchChainBalance, fetchChainDelegations, fetchChainRewards } from '@/lib/api/chain';
+import { getChainConfig } from '@/lib/utils/chain';
 import { logError } from '@/lib/error-handling';
+import { fetchChainBalance, fetchChainDelegations, fetchChainRewards } from '@/lib/api/chain';
 
 interface KeplrState {
   address: string;
@@ -114,6 +114,7 @@ export function useKeplr(chainName: string = 'osmosis') {
     });
   }, []);
 
+  // Handle Keplr account changes
   useEffect(() => {
     const handleAccountChange = () => {
       if (state.status === 'Connected') {
@@ -127,6 +128,7 @@ export function useKeplr(chainName: string = 'osmosis') {
     };
   }, [state.status, connect]);
 
+  // Auto-connect if Keplr is available
   useEffect(() => {
     const autoConnect = async () => {
       if (typeof window === "undefined" || !window.keplr) return;

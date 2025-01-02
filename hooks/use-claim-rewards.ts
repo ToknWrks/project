@@ -1,20 +1,20 @@
-"use client";
-
 import { useState, useCallback } from 'react';
 import { useKeplr } from './use-keplr';
 import { useToast } from "@/components/ui/use-toast";
 import { claimChainRewards } from '@/lib/api/rewards';
+import { useChainConfig } from '@/hooks/use-chain-config';
 
 export function useClaimRewards(chainName: string = 'osmosis') {
   const [isLoading, setIsLoading] = useState(false);
   const { address, getSigningClient } = useKeplr(chainName);
   const { toast } = useToast();
+  const chain = useChainConfig(chainName);
 
   const claimRewards = useCallback(async (validatorAddresses: string[]) => {
-    if (!address || !validatorAddresses.length) {
+    if (!address) {
       toast({
         title: "Error",
-        description: "No validators selected for claiming rewards",
+        description: "Please connect your wallet first",
         variant: "destructive"
       });
       return false;
@@ -37,7 +37,7 @@ export function useClaimRewards(chainName: string = 'osmosis') {
 
       toast({
         title: "Success",
-        description: "Successfully claimed rewards"
+        description: `Successfully claimed ${chain.symbol} rewards`
       });
 
       // Wait briefly before reloading to allow state updates
@@ -56,7 +56,7 @@ export function useClaimRewards(chainName: string = 'osmosis') {
     } finally {
       setIsLoading(false);
     }
-  }, [address, getSigningClient, chainName, toast]);
+  }, [address, getSigningClient, chainName, toast, chain]);
 
   return {
     claimRewards,

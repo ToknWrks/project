@@ -1,17 +1,15 @@
-import * as React from "react";
-import { Menu, Settings, Wallet } from "lucide-react";
+import { useState } from "react";
+import { Menu, Settings, Wallet, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SettingsModal } from "./settings-modal";
 import { SwapModal } from "./swap-modal";
 import { WalletModal } from "./wallet-modal";
 import { useKeplr } from "@/hooks/use-keplr";
-import { Loader2 } from "lucide-react";
-import Link from "next/link";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import { SUPPORTED_CHAINS } from '@/lib/constants/chains';
-import { getChainUrl } from '@/lib/utils/chain';
+import Link from "next/link";
+import { getEnabledNetworks } from "@/lib/utils/navigation";
 import { ClaimAllButton } from "./claim-all-button";
 import { ThemeToggle } from "./theme-toggle";
 import { useChainSettings } from "@/hooks/use-chain-settings";
@@ -22,22 +20,15 @@ interface HeaderProps {
 }
 
 export function Header({ chainName = 'osmosis' }: HeaderProps) {
-  const [showSwapModal, setShowSwapModal] = React.useState(false);
-  const [showWalletModal, setShowWalletModal] = React.useState(false);
-  const [showSettingsModal, setShowSettingsModal] = React.useState(false);
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const { status, isLoading, address, disconnect, unclaimedRewards, connect } = useKeplr(chainName);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const { enabledChains } = useChainSettings();
 
-  // Filter networks based on enabled chains
-  const enabledNetworks = Object.entries(SUPPORTED_CHAINS)
-    .filter(([key]) => enabledChains.has(key))
-    .map(([key, chain]) => ({
-      name: chain.name,
-      href: getChainUrl(key),
-      icon: chain.icon,
-      chainId: chain.chainId
-    }));
+  // Get enabled networks for navigation
+  const enabledNetworks = getEnabledNetworks(enabledChains);
 
   const isWalletConnected = status === 'Connected';
   const isWalletConnecting = isLoading;

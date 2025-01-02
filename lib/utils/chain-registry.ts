@@ -1,5 +1,6 @@
 import { Chain } from '@chain-registry/types';
 import { chains, assets } from 'chain-registry';
+import { SUPPORTED_CHAINS } from '@/lib/constants/chains';
 import { FALLBACK_ENDPOINTS } from '@/lib/constants/endpoints';
 
 // Get mainnet chains from registry
@@ -13,7 +14,7 @@ export function getMainnetChains(): Chain[] {
   );
 }
 
-// Get chain endpoints
+// Get chain endpoints with fallbacks
 export function getChainEndpoints(chain: Chain) {
   // Check fallback endpoints first
   const fallback = FALLBACK_ENDPOINTS[chain.chain_name];
@@ -57,25 +58,31 @@ export function getChainAsset(chainName: string) {
   };
 }
 
-// Get chain info
-export function getChainInfo(chain: Chain) {
-  const endpoints = getChainEndpoints(chain);
-  if (!endpoints) return null;
+// Get chain info with fallback to supported chains
+export function getChainInfo(chainName: string) {
+  // Try chain registry first
+  const registryChain = chains.find(c => c.chain_name === chainName);
+  if (registryChain) {
+    const endpoints = getChainEndpoints(registryChain);
+    const asset = getChainAsset(chainName);
+    
+    if (endpoints && asset) {
+      return {
+        name: registryChain.pretty_name || registryChain.chain_name,
+        chainId: registryChain.chain_id,
+        denom: asset.denom,
+        symbol: asset.symbol,
+        decimals: asset.decimals,
+        icon: asset.logo,
+        rest: endpoints.rest,
+        rpc: endpoints.rpc,
+        unbondingDays: registryChain.staking?.unbonding_time ? 
+          Math.ceil(parseInt(registryChain.staking.unbonding_time) / (24 * 60 * 60)) : 
+          14
+      };
+    }
+  }
 
-  const asset = getChainAsset(chain.chain_name);
-  if (!asset) return null;
-
-  return {
-    name: chain.pretty_name || chain.chain_name,
-    chainId: chain.chain_id,
-    denom: asset.denom,
-    symbol: asset.symbol,
-    decimals: asset.decimals,
-    icon: asset.logo,
-    rest: endpoints.rest,
-    rpc: endpoints.rpc,
-    unbondingDays: chain.staking?.unbonding_time ? 
-      Math.ceil(parseInt(chain.staking.unbonding_time) / (24 * 60 * 60)) : 
-      14
-  };
+  // Fallback to supported chains config
+  return SUPPORTED_CHAINS[chainName];
 }

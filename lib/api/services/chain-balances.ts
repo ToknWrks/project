@@ -14,32 +14,48 @@ export interface ChainBalance {
   };
 }
 
-export async function fetchBalances(address: string, chainName: string): Promise<ChainBalance> {
-  const chain = SUPPORTED_CHAINS[chainName as keyof typeof SUPPORTED_CHAINS];
+export async function fetchChainBalances(
+  address: string, 
+  chainName: string,
+  price: number
+): Promise<ChainBalance | null> {
+  const chain = SUPPORTED_CHAINS[chainName];
   if (!chain) {
     throw new Error(`Unsupported chain: ${chainName}`);
   }
 
   try {
+    // Fetch all balances in parallel
     const [available, staked, rewards] = await Promise.all([
       fetchAvailableBalance(chain.rest, address, chain.denom, chain.decimals),
       fetchStakedBalance(chain.rest, address, chain.decimals),
       fetchRewards(chain.rest, address, chain.denom, chain.decimals)
     ]);
 
+    // Calculate USD values
+    const availableUsd = (Number(available) * price).toFixed(2);
+    const stakedUsd = (Number(staked) * price).toFixed(2);
+    const rewardsUsd = (Number(rewards) * price).toFixed(2);
+    const totalUsd = (
+      Number(available) * price + 
+      Number(staked) * price + 
+      Number(rewards) * price
+    ).toFixed(2);
+
     return {
       available,
       staked,
       rewards,
       usdValues: {
-        available: "0",
-        staked: "0", 
-        rewards: "0",
-        total: "0"
+        available: availableUsd,
+        staked: stakedUsd,
+        rewards: rewardsUsd,
+        total: totalUsd
       }
     };
   } catch (err) {
-    throw new Error(logError(err, `Failed to fetch ${chainName} balances`));
+    logError(err, `Failed to fetch ${chainName} balances`, true);
+    return null;
   }
 }
 
@@ -56,9 +72,7 @@ async function fetchAvailableBalance(
     const data = await response.json();
     
     const balance = data.balances?.find((b: any) => b.denom === denom);
-    return balance 
-      ? (Number(balance.amount) / Math.pow(10, decimals)).toFixed(decimals)
-      : "0";
+    return balance ? (Number(balance.amount) / Math.pow(10, decimals)).toFixed(decimals) : "0";
   } catch (err) {
     logError(err, 'Fetching available balance', true);
     return "0";
@@ -101,9 +115,7 @@ async function fetchRewards(
     const data = await response.json();
     
     const rewards = data.total?.find((r: any) => r.denom === denom);
-    return rewards
-      ? (Number(rewards.amount) / Math.pow(10, decimals)).toFixed(decimals)
-      : "0";
+    return rewards ? (Number(rewards.amount) / Math.pow(10, decimals)).toFixed(decimals) : "0";
   } catch (err) {
     logError(err, 'Fetching rewards', true);
     return "0";
