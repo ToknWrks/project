@@ -4,11 +4,11 @@ import { SUPPORTED_CHAINS } from '@/lib/constants/chains';
 
 // Default enabled chains
 const DEFAULT_ENABLED_CHAINS = [
-  'osmosis',  // Required chain
-  'cosmoshub',
+  'cosmoshub', // Required chain
+  'osmosis',
   'celestia',
   'akash',
-  'juno'
+  'juno',
 ];
 
 interface ChainSettingsState {
@@ -24,26 +24,30 @@ export const useChainSettingsStore = create<ChainSettingsState>()(
       // Initialize with default chains enabled
       enabledChains: new Set(DEFAULT_ENABLED_CHAINS),
 
-      toggleChain: (chainName) => set((state) => {
-        // Don't allow disabling Osmosis
-        if (chainName === 'osmosis') return state;
+      toggleChain: (chainName) =>
+        set((state) => {
+          // Don't allow disabling Cosmos Hub
+          if (chainName === 'cosmoshub') return state;
 
-        const newEnabledChains = new Set(state.enabledChains);
-        if (newEnabledChains.has(chainName)) {
-          newEnabledChains.delete(chainName);
-        } else {
-          newEnabledChains.add(chainName);
-        }
-        return { enabledChains: newEnabledChains };
-      }),
+          const newEnabledChains = new Set(state.enabledChains);
+          if (newEnabledChains.has(chainName)) {
+            newEnabledChains.delete(chainName);
+          } else {
+            newEnabledChains.add(chainName);
+          }
+          return { enabledChains: newEnabledChains };
+        }),
 
-      toggleAll: (chains) => set((state) => {
-        const allEnabled = chains.every(chain => state.enabledChains.has(chain));
-        // Always keep Osmosis enabled
-        return { 
-          enabledChains: new Set(allEnabled ? ['osmosis'] : chains) 
-        };
-      }),
+      toggleAll: (chains) =>
+        set((state) => {
+          const allEnabled = chains.every((chain) =>
+            state.enabledChains.has(chain)
+          );
+          // Always keep Cosmos enabled
+          return {
+            enabledChains: new Set(allEnabled ? ['cosmoshub'] : chains),
+          };
+        }),
 
       isChainEnabled: (chainName) => get().enabledChains.has(chainName),
     }),
@@ -57,8 +61,8 @@ export const useChainSettingsStore = create<ChainSettingsState>()(
           return {
             state: {
               ...state,
-              enabledChains: new Set([...state.enabledChains, 'osmosis']) // Always include Osmosis
-            }
+              enabledChains: new Set([...state.enabledChains, 'cosmoshub']), // Always include Cosmoshub
+            },
           };
         },
         setItem: (name, value) => {
@@ -66,8 +70,8 @@ export const useChainSettingsStore = create<ChainSettingsState>()(
           const serializedState = {
             state: {
               ...state,
-              enabledChains: Array.from(state.enabledChains)
-            }
+              enabledChains: Array.from(state.enabledChains),
+            },
           };
           localStorage.setItem(name, JSON.stringify(serializedState));
         },

@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 import { useEffect } from "react";
 
-export default function SecretPage() {
+export default function SecretNetworkPage() {
   const {
     address,
     status,

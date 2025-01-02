@@ -77,7 +77,7 @@ export default function ChainSettingsPage() {
                 {filteredChains.map(([chainName, chain]) => {
                   const chainHasBalance = Boolean(balances[chainName]);
                   const isEnabled = isChainEnabled(chainName);
-                  const isOsmosis = chainName === 'osmosis';
+                  const isCosmoshub = chainName === 'cosmoshub';
                   
                   return (
                     <div
@@ -90,7 +90,7 @@ export default function ChainSettingsPage() {
                         id={chainName}
                         checked={isEnabled}
                         onCheckedChange={() => toggleChain(chainName)}
-                        disabled={isOsmosis} // Osmosis is always enabled
+                        disabled={isCosmoshub} // Osmosis is always enabled
                       />
                       {chain.icon && (
                         <div className="h-8 w-8 relative flex-shrink-0">
@@ -108,7 +108,7 @@ export default function ChainSettingsPage() {
                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer truncate"
                         >
                           {chain.name}
-                          {isOsmosis && (
+                          {isCosmoshub && (
                             <span className="ml-2 text-xs text-muted-foreground">
                               (Default)
                             </span>
