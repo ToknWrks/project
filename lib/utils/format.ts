@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Format a number with specified decimals
  */

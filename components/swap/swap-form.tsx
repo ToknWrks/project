@@ -2,16 +2,16 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { ArrowDownUp, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useKeplr } from "@/hooks/use-keplr";
+import { useToast } from "@/components/ui/use-toast";
+import { useSwap } from "@/hooks/swap/use-swap";
 import { TokenSelect } from "./token-select";
 import { ChainSelect } from "./chain-select";
 import { SlippageSelect } from "./slippage-select";
 import { SwapDetails } from "./swap-details";
-import { ArrowDownUp, Loader2 } from "lucide-react";
-import { useSwapStore } from "@/hooks/swap/use-swap-store";
-import { useKeplr } from "@/hooks/use-keplr";
-import { useSwap } from "@/hooks/swap/use-swap";
-import { useState } from "react";
-import { Label } from "@/components/ui/label";
 import { getChainToken } from "@/lib/constants/tokens";
 
 interface SwapFormProps {
@@ -20,31 +20,24 @@ interface SwapFormProps {
 }
 
 export function SwapForm({ onClose, chainName = 'osmosis' }: SwapFormProps) {
-  const { 
-    fromChain,
-    toChain,
-    fromToken, 
+  const { address, status } = useKeplr(chainName);
+  const { toast } = useToast();
+  const {
+    fromToken,
     toToken,
     estimatedAmount,
-    exchangeRate,
-    priceImpact,
-    minimumReceived,
-    fee,
-    slippage,
     isLoading,
     isExecuting,
     error,
-    setFromChain,
-    setToChain,
+    getEstimate,
+    executeSwap,
+    switchTokens,
     setFromToken,
     setToToken,
-    setSlippage
-  } = useSwapStore();
-  
-  const { status } = useKeplr(chainName);
-  const { getEstimate, executeSwap, switchTokens } = useSwap(chainName);
-  
+  } = useSwap(chainName);
+
   const [amount, setAmount] = useState("");
+  const [slippage, setSlippage] = useState("1.0");
 
   const handleAmountChange = (value: string) => {
     setAmount(value);
@@ -58,15 +51,26 @@ export function SwapForm({ onClose, chainName = 'osmosis' }: SwapFormProps) {
   const toSymbol = "USDC";
 
   return (
-    <div className="grid gap-6 py-4">
+    <div className="grid gap-4">
+      {/* From Section */}
       <div className="grid gap-2">
         <div className="flex items-center justify-between">
           <Label>From</Label>
-          <ChainSelect
-            value={fromChain}
-            onValueChange={setFromChain}
-            excludeChain={toChain}
-          />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Slippage</span>
+              <SlippageSelect
+                value={slippage}
+                onValueChange={setSlippage}
+                onCustomChange={setSlippage}
+              />
+            </div>
+            <ChainSelect
+              value={fromToken}
+              onValueChange={setFromToken}
+              chainName={chainName}
+            />
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Input
@@ -83,6 +87,7 @@ export function SwapForm({ onClose, chainName = 'osmosis' }: SwapFormProps) {
         </div>
       </div>
 
+      {/* Switch Button */}
       <div className="relative flex items-center justify-center">
         <Button
           variant="outline"
@@ -94,13 +99,14 @@ export function SwapForm({ onClose, chainName = 'osmosis' }: SwapFormProps) {
         </Button>
       </div>
 
+      {/* To Section */}
       <div className="grid gap-2">
         <div className="flex items-center justify-between">
           <Label>To</Label>
           <ChainSelect
-            value={toChain}
-            onValueChange={setToChain}
-            excludeChain={fromChain}
+            value={toToken}
+            onValueChange={setToToken}
+            chainName="noble"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -118,29 +124,26 @@ export function SwapForm({ onClose, chainName = 'osmosis' }: SwapFormProps) {
         </div>
       </div>
 
-      <SlippageSelect
-        value={slippage}
-        onValueChange={setSlippage}
-        onCustomChange={setSlippage}
-      />
-
+      {/* Swap Details */}
       {estimatedAmount && (
         <SwapDetails
           fromAmount={amount}
           toAmount={estimatedAmount}
           fromSymbol={fromSymbol}
           toSymbol={toSymbol}
-          exchangeRate={exchangeRate}
-          priceImpact={priceImpact}
-          minimumReceived={minimumReceived}
-          fee={fee}
+          exchangeRate="1.0"
+          priceImpact="0.1"
+          minimumReceived={estimatedAmount}
+          fee="0.1"
         />
       )}
 
+      {/* Error Message */}
       {error && (
         <p className="text-sm text-destructive">{error}</p>
       )}
 
+      {/* Swap Button */}
       <Button
         onClick={() => executeSwap(amount)}
         disabled={!amount || isLoading || isExecuting || status !== 'Connected'}

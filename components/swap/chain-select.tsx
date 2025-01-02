@@ -1,6 +1,14 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
+"use client";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SUPPORTED_CHAINS } from "@/lib/constants/chains";
 import Image from "next/image";
 
 interface ChainSelectProps {
@@ -8,55 +16,65 @@ interface ChainSelectProps {
   onValueChange: (value: string) => void;
   excludeChain?: string;
   isLoading?: boolean;
+  chainName?: string;
 }
 
-export function ChainSelect({ value, onValueChange, excludeChain, isLoading }: ChainSelectProps) {
+export function ChainSelect({
+  value,
+  onValueChange,
+  excludeChain,
+  isLoading,
+  chainName = 'osmosis'
+}: ChainSelectProps) {
   if (isLoading) {
     return <Skeleton className="h-10 w-[140px]" />;
   }
 
-  // Filter out excluded chain
+  // Get default chain if no value is provided
+  const defaultChain = SUPPORTED_CHAINS[chainName];
+  const defaultChainId = defaultChain?.chainId || 'osmosis-1';
+
+  // Use provided value or fall back to default
+  const currentValue = value || defaultChainId;
+
+  // Convert chain ID to internal name (e.g. "osmosis-1" -> "osmosis")
+  const internalName = currentValue.split('-')[0];
+  const selectedChain = SUPPORTED_CHAINS[internalName];
+
+  // Filter and map chains for selection
   const chains = Object.entries(SUPPORTED_CHAINS)
-    .filter(([key]) => key !== excludeChain)
-    .map(([key, chain]) => ({
+    .filter(([name]) => name !== excludeChain)
+    .map(([_, chain]) => ({
       id: chain.chainId,
       name: chain.name,
-      logo: chain.icon
+      icon: chain.icon
     }));
 
-  const selectedChain = chains.find(chain => chain.id === value);
-
   return (
-    <Select value={value} onValueChange={onValueChange}>
+    <Select value={currentValue} onValueChange={onValueChange}>
       <SelectTrigger className="w-[140px]">
-        <SelectValue>
-          <div className="flex items-center gap-2">
-            {selectedChain?.logo && (
-              <div className="relative w-4 h-4">
-                <Image
-                  src={selectedChain.logo}
-                  alt={selectedChain.name}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            )}
-            {selectedChain?.name}
-          </div>
-        </SelectValue>
+        <div className="flex items-center gap-2">
+          {selectedChain?.icon && (
+            <div className="relative w-4 h-4">
+              <Image
+                src={selectedChain.icon}
+                alt={selectedChain.name}
+                fill
+                className="object-contain"
+              />
+            </div>
+          )}
+          <span>{selectedChain?.name || 'Select Chain'}</span>
+        </div>
       </SelectTrigger>
       <SelectContent>
         {chains.map((chain) => (
-          <SelectItem
-            key={chain.id}
-            value={chain.id}
-            className="flex items-center gap-2"
-          >
+          <SelectItem key={chain.id} value={chain.id}>
             <div className="flex items-center gap-2">
-              {chain.logo && (
+              {chain.icon && (
                 <div className="relative w-4 h-4">
                   <Image
-                    src={chain.logo}
+                    src={chain.icon}
                     alt={chain.name}
                     fill
                     className="object-contain"

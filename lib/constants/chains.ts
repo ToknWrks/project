@@ -178,7 +178,7 @@ export const SUPPORTED_CHAINS = {
     denom: "ucore",
     symbol: "CORE",
     decimals: 6,
-    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/coreum/images/core.png",
+    icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/coreum/images/coreum.png",
     rest: "https://rest.cosmos.directory/coreum",
     rpc: "https://rpc.cosmos.directory/coreum",
     gasPrice: "0.025ucore",

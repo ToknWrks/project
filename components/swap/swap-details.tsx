@@ -1,5 +1,7 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card";
-import { formatNumber, formatUSD } from "@/lib/utils/format";
+import { formatNumber } from "@/lib/utils";
 
 interface SwapDetailsProps {
   fromAmount: string;
@@ -44,7 +46,7 @@ export function SwapDetails({
 
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Network Fee</span>
-          <span>{formatUSD(Number(fee))}</span>
+          <span>${fee}</span>
         </div>
       </CardContent>
     </Card>

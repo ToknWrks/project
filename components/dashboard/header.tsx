@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Menu, Settings, Wallet, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SettingsModal } from "./settings-modal";
-import { SwapModal } from "./swap-modal";
 import { WalletModal } from "./wallet-modal";
 import { useKeplr } from "@/hooks/use-keplr";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -20,11 +19,17 @@ interface HeaderProps {
 }
 
 export function Header({ chainName = 'osmosis' }: HeaderProps) {
-  const [showSwapModal, setShowSwapModal] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const { status, isLoading, address, disconnect, unclaimedRewards, connect } = useKeplr(chainName);
   const [isOpen, setIsOpen] = useState(false);
+  const { 
+    status, 
+    isLoading, 
+    address, 
+    disconnect, 
+    unclaimedRewards,
+    connect 
+  } = useKeplr(chainName);
   const { enabledChains } = useChainSettings();
 
   // Get enabled networks for navigation
@@ -48,6 +53,7 @@ export function Header({ chainName = 'osmosis' }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
+        {/* Left side menu */}
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -108,21 +114,16 @@ export function Header({ chainName = 'osmosis' }: HeaderProps) {
           </SheetContent>
         </Sheet>
 
+        {/* Logo */}
         <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <span className="font-bold">ToknWrks</span>
           </Link>
         </div>
 
+        {/* Right side actions */}
         <div className="flex flex-1 items-center justify-end space-x-2">
           <div className="flex items-center space-x-2">
-            <Button 
-              variant="outline"
-              onClick={() => setShowSwapModal(true)}
-            >
-              Swap
-            </Button>
-
             {isWalletConnected && Number(unclaimedRewards) > 0 && (
               <ClaimAllButton />
             )}
@@ -162,9 +163,16 @@ export function Header({ chainName = 'osmosis' }: HeaderProps) {
         </div>
       </div>
 
-      <SwapModal open={showSwapModal} onClose={() => setShowSwapModal(false)} />
-      <WalletModal open={showWalletModal} onClose={() => setShowWalletModal(false)} chainName={chainName} />
-      <SettingsModal open={showSettingsModal} onOpenChange={setShowSettingsModal} />
+      {/* Modals */}
+      <WalletModal 
+        open={showWalletModal} 
+        onClose={() => setShowWalletModal(false)} 
+        chainName={chainName} 
+      />
+      <SettingsModal 
+        open={showSettingsModal} 
+        onOpenChange={setShowSettingsModal} 
+      />
     </header>
   );
 }

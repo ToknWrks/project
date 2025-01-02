@@ -1,8 +1,7 @@
-```typescript
 "use client";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { SwapForm } from "@/components/swap/swap-form";
+import { SwapForm } from "./swap-form";
 
 interface SwapModalProps {
   open: boolean;
@@ -22,4 +21,3 @@ export function SwapModal({ open, onClose, chainName = 'osmosis' }: SwapModalPro
     </Dialog>
   );
 }
-```
